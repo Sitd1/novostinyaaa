@@ -1,51 +1,42 @@
 from enum import Enum
-from dataclasses import dataclass
 from urllib.parse import urlparse
 
 
-
-@dataclass(frozen=True)
-class RawNewsId:
+class NewsEventId:
     value: int
 
-
-class SourceType(Enum):
-    TELEGRAM = "telegram"
-    RSS = "rss"
-    API = "api"
-    OTHER = "other"
-
-
-@dataclass(frozen=True)
-class Source:
-    # пример: telegram channel, rss feed, api provider
-    type: SourceType    # enum: TELEGRAM, RSS, API, OTHER
-    name: str           # "Meduza", "The Bell" и т.д.
-    internal_code: str  # "meduza_tg_main"
-
-
-@dataclass(frozen=True)
-class ExternalMessageId:
-    value: str  # msg_id в TG, guid в RSS и т.д.
-
-
-@dataclass(frozen=True)
-class Url:
+class Title:
     value: str
 
-    def __post_init__(self):
-        parsed = urlparse(self.value)
+class Summary:
+    value: str  # уже очищенный/суммаризованный текст
 
-        # Базовая валидация: протокол + домен
-        if not parsed.scheme:
-            raise ValueError(f"Url: missing scheme (http/https): '{self.value}'")
+class ImportanceLevel(Enum):
+    CRITICAL = "critical"   # влияет на безопасность, большие деньги, рынок
+    HIGH = "high"
+    MEDIUM = "medium"
+    LOW = "low"
+    IGNORE = "ignore"       # для внутренней пометки
 
-        if parsed.scheme not in ("http", "https"):
-            raise ValueError(f"Url: unsupported scheme '{parsed.scheme}' in '{self.value}'")
+class Topic(Enum):
+    ECONOMY = "economy"
+    POLITICS = "politics"
+    TECHNOLOGY = "technology"
+    SECURITY = "security"
+    SOCIETY = "society"
+    MARKET = "market"
+    OTHER = "other"
 
-        if not parsed.netloc:
-            raise ValueError(f"Url: missing domain part in '{self.value}'")
+class Tag:
+    value: str  # более свободные метки: "санкции", "нефть", "AI", "выборы"
 
-        # Можно добавить простой check для домена
-        if "." not in parsed.netloc:
-            raise ValueError(f"Url: invalid domain '{parsed.netloc}' in '{self.value}'")
+class Geography:
+    country: str | None
+    region: str | None
+    city: str | None
+
+class EventTime:
+    # например, событие могло начаться вчера и длится сейчас
+    started_at: datetime
+    ended_at: datetime | None
+

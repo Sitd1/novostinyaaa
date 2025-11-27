@@ -1,21 +1,15 @@
-# Тут живут сущности, например:
-#
-# * `News` – новость:
-#
-#   * id, заголовок, текст, источник, время, важность и т.п.
-# * `RawNews` – сырая новость из телеграм/гугл/ещё откуда-то.
-# * `RunStory` или аналог – сущность про «запуск обработки новостей» (например, одна итерация скрейпа).
-import datetime
-# Сущности:
-#
-# * имеют идентичность (id),
-# * содержат бизнес-логику (например, метод `mark_as_important()`).
+from datetime import datetime
 from dataclasses import dataclass
 
+from app.core.domain.raw_news.value_objects import RawNewsId, Source, ExternalMessageId, Url
 
 
-
-
-
-
-
+class RawNews:
+    id: RawNewsId
+    source: Source
+    external_id: ExternalMessageId  # id сообщения в TG / API
+    published_at: datetime
+    fetched_at: datetime  # когда спарсили
+    text: str
+    url: Url | None
+    raw_payload: dict | None  # весь сырой json, если есть
