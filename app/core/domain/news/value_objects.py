@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from urllib.parse import urlparse
 
 
+
 @dataclass(frozen=True)
 class RawNewsId:
     value: int
@@ -48,4 +49,3 @@ class Url:
         # Можно добавить простой check для домена
         if "." not in parsed.netloc:
             raise ValueError(f"Url: invalid domain '{parsed.netloc}' in '{self.value}'")
-
