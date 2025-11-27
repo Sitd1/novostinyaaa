@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16
+    container_name: novostinya_postgres
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - novostinya_network
+    restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready", "-U", "docker_app" ]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "5"
+
+#    deploy:
+#      replicas: 1
+
+
+#  app:
+#    build: .
+#    container_name: novostinya_app
+#    depends_on:
+#      - postgres
+#    environment:
+#      - db_host=postgres
+#      - db_port=5432
+#      - db_user=postgres
+#      - db_password=password
+#      - db_database=news_db
+#    volumes:
+#      - .:/app
+#      - /app/__pycache__
+#    working_dir: /app
+#    networks:
+#      - novostinya_network
+#    command: python -m stock-news-bot.src.database.init_db
+#
+#  backend:
+#    build:
+#      context: ./backend
+#      dockerfile: Dockerfile
+#    container_name: novostinya_app
+#    restart: always
+#    ports:
+#      - "8000:8000"
+#    depends_on:
+#      - db
+#    environment:
+#      - DB_HOST=db
+#      - DB_PORT=5432
+#      - DB_USER=${POSTGRES_USER}
+#    volumes:
+#      - ./backend/app/logs:/app/logs
+#    logging:
+#      driver: "json-file"
+#      options:
+#        max-size: "100m"
+#        max-file: "5"
+
+volumes:
+  postgres_data:
+
+networks:
+  novostinya_network:
+    driver: bridge
