@@ -1,0 +1,3 @@
+/.env
+*.yaml
+/stock-news-bot/src/agents_api_old/agent_configs/configs/perplexity_config.yaml
