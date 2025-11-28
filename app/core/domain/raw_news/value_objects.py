@@ -122,8 +122,3 @@ class RawNewsImportance:
 @dataclass(frozen=True)
 class RawNewsSummary:
     value: int | None = None
-
-
-@dataclass(frozen=True)
-class RawNewsEmbedding:
-    value: int | None = None

@@ -32,7 +32,6 @@ class RawNews:
     tags: tuple[Tag, ...] | None = None
     interest_importance: RawNewsImportance | None = None
     summary: RawNewsSummary | None = None
-    embedding: RawNewsEmbedding | None = None
 
     def __post_init__(self):
         # Простейший инвариант: не может быть "получено" раньше, чем опубликовано
