@@ -2,8 +2,9 @@
 from abc import ABC, abstractmethod
 from typing import Iterable, Optional
 
-from .entities import NewsEvent
-from .value_objects import NewsEventId
+from app.core.domain.raw_news.value_objects import RawNewsId
+from app.core.domain.news.entities import NewsEvent
+from app.core.domain.news.value_objects import NewsEventId
 
 
 class NewsEventRepository(ABC):
@@ -17,6 +18,18 @@ class NewsEventRepository(ABC):
     async def get_by_id(self, event_id: NewsEventId) -> Optional[NewsEvent]:
         """Return event by id or None."""
         raise NotImplementedError
+
+    def find_by_raw_news_ids(
+            self,
+            raw_news_ids: list[RawNewsId],
+    ) -> list[NewsEvent]:
+        """
+        Найти события, которые уже содержат указанные RawNewsID.
+
+        Обычно реализуется через join-таблицу
+        news_event_raw_news(event_id, raw_news_id)
+        """
+        ...
 
     @abstractmethod
     async def add(self, event: NewsEvent) -> None:

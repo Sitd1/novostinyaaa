@@ -10,7 +10,8 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 
 
-class TgRawNews(Base):
+class RawNewsORM(Base):
+    # ToDo - переписать как в domain
     __tablename__ = "tg_raw_news"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)

@@ -11,8 +11,8 @@ from sqlalchemy.sql import func
 from database.models.base import Base
 
 # ---------- News (новость) ----------
-class News(Base):
-    __tablename__ = "news"
+class NewsEventsORM(Base):
+    __tablename__ = "news_events"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
@@ -37,3 +37,6 @@ class News(Base):
 
     def __repr__(self):
         return f"<News(id={self.id}, title='{self.title}')>"
+
+
+# ToDo news_event_raw_news создать
