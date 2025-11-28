@@ -13,13 +13,13 @@ class NewsEvent:
     updated_at: datetime
 
     # связь с сырыми новостями (могут жить в инфраструктуре/ORM)
-    raw_news_ids: list[RawNewsId]
+    raw_news_ids: tuple[RawNewsId]
 
     title: Title
     summary: Summary
     importance: ImportanceLevel
-    topics: list[Topic]
-    tags: list[Tag]
+    topics: tuple[Topic]
+    tags: tuple[Tag]
     geography: Geography | None
 
     event_time: EventTime   # когда это произошло / актуально
