@@ -4,7 +4,7 @@ from app.core.domain.raw_news.value_objects import RawNewsId, ExternalMessageId,
     RawNewsText, Source
 
 
-@dataclass
+@dataclass(frozen=True)
 class RawNews:
     id: RawNewsId
     source: Source
