@@ -1,7 +1,7 @@
+from datetime import datetime
 from enum import Enum
 from dataclasses import dataclass
 from urllib.parse import urlparse
-
 
 
 @dataclass(frozen=True)
@@ -9,19 +9,32 @@ class RawNewsId:
     value: int
 
 
-class SourceType(Enum):
-    TELEGRAM = "telegram"
-    RSS = "rss"
-    API = "api"
-    OTHER = "other"
+@dataclass(frozen=True)
+class SourceDescription:
+    """Описание канала - можно добавлять, можно не добавлять"""
+    value: str | None
 
 
 @dataclass(frozen=True)
-class Source:
-    # пример: telegram channel, rss feed, api provider
-    type: SourceType    # enum: TELEGRAM, RSS, API, OTHER
-    name: str           # "Meduza", "The Bell" и т.д.
-    internal_code: str  # "meduza_tg_main"
+class RawPublishedAt:
+    value: datetime
+
+
+@dataclass(frozen=True)
+class RawFetchedAt:
+    value: datetime
+
+
+@dataclass(frozen=True)
+class RawNewsText:
+    value: str
+
+
+class SourceType(Enum):
+    TELEGRAM = "telegram"
+    # RSS = "rss"
+    # API = "api"
+    # OTHER = "other"
 
 
 @dataclass(frozen=True)
@@ -49,3 +62,21 @@ class Url:
         # Можно добавить простой check для домена
         if "." not in parsed.netloc:
             raise ValueError(f"Url: invalid domain '{parsed.netloc}' in '{self.value}'")
+
+
+@dataclass(frozen=True)
+class SourceTitle:
+    """Человеческое название канала (как в канале)"""
+    value: str
+
+
+@dataclass(frozen=True)
+class SourceName:
+    """Для телеграма - это название канала @lentach"""
+    value: str
+
+
+@dataclass(frozen=True)
+class SourceInternalCode:
+    """Код канала (если есть) id12345"""
+    value: str | None

@@ -1,5 +1,5 @@
+from datetime import datetime
 from enum import Enum
-from urllib.parse import urlparse
 
 
 class NewsEventId:
@@ -39,4 +39,3 @@ class EventTime:
     # например, событие могло начаться вчера и длится сейчас
     started_at: datetime
     ended_at: datetime | None
-
