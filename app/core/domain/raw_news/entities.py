@@ -1,33 +1,7 @@
-from datetime import datetime
 from dataclasses import dataclass
 
-from app.core.domain.raw_news.value_objects import RawNewsId, SourceType, ExternalMessageId, Url, SourceTitle, \
-    SourceName, SourceInternalCode, SourceDescription, RawPublishedAt, RawFetchedAt, RawNewsText
-
-
-@dataclass(frozen=True)
-class Source:
-    type: SourceType    # enum: TELEGRAM, RSS, API, OTHER
-    title: SourceTitle
-    name: SourceName           # "Meduza", "The Bell" и т.д. tg channel name
-    internal_code: SourceInternalCode | None # "meduza_tg_main" @lentach
-    description: SourceDescription | None = None
-    url: Url | None = None
-
-    @classmethod
-    def telegram(cls, name: str, channel_code: str, url: str | None = None, description: str | None = None) -> "Source":
-        """
-        channel_code — то, что тебе удобно:
-        - username: "meduzalive"
-        - или id: "123456789"
-        """
-        return cls(
-            type=SourceType.TELEGRAM,
-            name=name,
-            internal_code=f"tg:{channel_code}",
-            description=description,
-            url=Url(url) if url else None,
-        )
+from app.core.domain.raw_news.value_objects import RawNewsId, ExternalMessageId, Url, RawPublishedAt, RawFetchedAt, \
+    RawNewsText, Source
 
 
 @dataclass
