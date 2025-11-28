@@ -113,12 +113,14 @@ class Source:
 class Tag:
     value: str | None = None # более свободные метки: "санкции", "нефть", "AI", "выборы"
 
-
-@dataclass(frozen=True)
-class RawNewsImportance:
-    value: int | None = None # а може сделать как категорию? (Low, Critical)
-
-
 @dataclass(frozen=True)
 class RawNewsSummary:
     value: int | None = None
+
+@dataclass(frozen=True)
+class RawNewsImportance(Enum):
+    CRITICAL = "critical"   # влияет на безопасность, большие деньги, рынок
+    HIGH = "high"
+    MEDIUM = "medium"
+    LOW = "low"
+    IGNORE = "ignore"       # для внутренней пометки

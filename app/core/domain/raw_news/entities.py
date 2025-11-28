@@ -12,7 +12,7 @@ from app.core.domain.raw_news.value_objects import (
     Tag,
     RawNewsImportance,
     RawNewsText,
-    RawNewsSummary
+    RawNewsSummary, Topic
 )
 
 
