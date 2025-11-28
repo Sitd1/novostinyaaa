@@ -33,9 +33,6 @@ class Topic(Enum):
     MARKET = "market"
     OTHER = "other"
 
-@dataclass(frozen=True)
-class Tag:
-    value: str  # более свободные метки: "санкции", "нефть", "AI", "выборы"
 
 @dataclass(frozen=True)
 class Geography:
@@ -48,3 +45,8 @@ class EventTime:
     # например, событие могло начаться вчера и длится сейчас
     started_at: datetime
     ended_at: datetime | None
+
+
+@dataclass(frozen=True)
+class UserInterestScore:
+    value: int

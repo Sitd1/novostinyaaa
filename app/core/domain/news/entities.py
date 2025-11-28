@@ -14,7 +14,7 @@ from app.core.domain.news.value_objects import (
     Topic,
     Tag,
     Geography,
-    EventTime,
+    EventTime, UserInterestScore,
 )
 from app.core.domain.raw_news.value_objects import RawNewsId
 
@@ -41,6 +41,7 @@ class NewsEvent:
     tags: tuple[Tag, ...]
     geography: Geography | None
     event_time: EventTime  # когда это произошло / актуально
+    user_interest_score: UserInterestScore | None = None
 
     # ---------- Фабрики / конструкторы ----------
 
@@ -59,6 +60,7 @@ class NewsEvent:
         geography: Geography | None = None,
         created_at: datetime | None = None,
         updated_at: datetime | None = None,
+        user_interest_score: UserInterestScore | None = None,
     ) -> "NewsEvent":
         """
         Удобная фабрика: принимает обычные Iterable, внутри приводит к tuple.
@@ -88,6 +90,7 @@ class NewsEvent:
             tags=tags_tuple,
             geography=geography,
             event_time=event_time,
+            user_interest_score=user_interest_score,
         )
 
     # ---------- Методы поведения (immutability) ----------
