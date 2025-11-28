@@ -30,8 +30,6 @@ class Source:
         )
 
 
-
-
 @dataclass
 class RawNews:
     id: RawNewsId
