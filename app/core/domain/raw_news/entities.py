@@ -1,7 +1,20 @@
 from dataclasses import dataclass
 
-from app.core.domain.raw_news.value_objects import RawNewsId, ExternalMessageId, Url, RawPublishedAt, RawFetchedAt, \
-    RawNewsText, Source
+from app.core.domain.raw_news.value_objects import (
+    RawNewsId,
+    ExternalMessageId,
+    Url,
+    RawPublishedAt,
+    RawFetchedAt,
+    RawNewsText,
+    Source,
+
+    Tag,
+    RawNewsImportance,
+    RawNewsText,
+    RawNewsEmbedding, RawNewsSummary
+)
+
 
 
 @dataclass(frozen=True)
@@ -14,6 +27,12 @@ class RawNews:
     text: RawNewsText  # сырой текст
     url: Url | None
     raw_payload: dict | None  # весь сырой json, если есть
+
+    # заполняются после постобработки
+    tags: tuple[Tag, ...] | None = None
+    interest_importance: RawNewsImportance | None = None
+    summary: RawNewsSummary | None = None
+    embedding: RawNewsEmbedding | None = None
 
     def __post_init__(self):
         # Простейший инвариант: не может быть "получено" раньше, чем опубликовано

@@ -3,7 +3,7 @@ from enum import Enum
 from dataclasses import dataclass
 from urllib.parse import urlparse
 
-
+# --- Основные VO для RawNews
 @dataclass(frozen=True)
 class RawNewsId:
     value: int
@@ -39,7 +39,7 @@ class SourceType(Enum):
 
 @dataclass(frozen=True)
 class ExternalMessageId:
-    value: str  # msg_id в TG, guid в RSS и т.д.
+    value: str | None  # msg_id в TG, guid в RSS и т.д.
 
 
 @dataclass(frozen=True)
@@ -81,6 +81,7 @@ class SourceInternalCode:
     """Код канала (если есть) id12345"""
     value: str | None
 
+
 @dataclass(frozen=True)
 class Source:
     type: SourceType    # enum: TELEGRAM, RSS, API, OTHER
@@ -104,3 +105,25 @@ class Source:
             description=description,
             url=Url(url) if url else None,
         )
+
+
+# --- VO, которые будут внесены после обработки RawNews
+
+@dataclass(frozen=True)
+class Tag:
+    value: str | None = None # более свободные метки: "санкции", "нефть", "AI", "выборы"
+
+
+@dataclass(frozen=True)
+class RawNewsImportance:
+    value: int | None = None # а може сделать как категорию? (Low, Critical)
+
+
+@dataclass(frozen=True)
+class RawNewsSummary:
+    value: int | None = None
+
+
+@dataclass(frozen=True)
+class RawNewsEmbedding:
+    value: int | None = None
