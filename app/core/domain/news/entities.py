@@ -80,6 +80,8 @@ class NewsEvent:
         Удобная фабрика: принимает обычные Iterable, внутри приводит к tuple.
         created_at / updated_at можно прокинуть снаружи (например, из БД),
         или выставить одинаково при создании.
+            Принимает обычные итерабельные (list, set, и т.п.).
+            Внутри приводит к tuple + убирает дубликаты через dict.fromkeys(...)
         """
         now = datetime.now(timezone.utc)
         created = created_at or now
@@ -199,4 +201,3 @@ class NewsEvent:
         Обновить updated_at (например, при любом изменении).
         """
         return replace(self, updated_at=at or datetime.utcnow())
-
