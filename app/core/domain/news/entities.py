@@ -1,20 +1,4 @@
-from datetime import datetime, timezone
-from dataclasses import dataclass
-
-from app.core.domain.news.value_objects import (
-    NewsEventId,
-    Title,
-    Summary,
-    ImportanceLevel,
-    Topic,
-    Tag,
-    Geography,
-    EventTime
-)
-from app.core.domain.raw_news.value_objects import RawNewsId
-
-
-# app/core/domain/news/entities.py
+from datetime import timezone
 
 from __future__ import annotations
 
