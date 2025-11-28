@@ -24,7 +24,6 @@ class RawNewsRepository(Protocol):
     def add(self, item: RawNews) -> RawNews:
         """
         Сохранить одну сырую новость.
-
         Возврат того же объекта или копии с проставленным id — на совести реализации.
         """
 
