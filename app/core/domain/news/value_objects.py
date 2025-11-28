@@ -50,3 +50,7 @@ class EventTime:
 @dataclass(frozen=True)
 class UserInterestScore:
     value: int
+
+@dataclass(frozen=True)
+class Tag:
+    value: str | None = None # более свободные метки: "санкции", "нефть", "AI", "выборы"

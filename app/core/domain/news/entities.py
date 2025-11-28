@@ -31,7 +31,7 @@ class NewsEvent:
     created_at: datetime
     updated_at: datetime
 
-    # связь с сырыми новостями (могут жить в инфраструктуре/ORM)
+    # ГРУППА сырых новостей - связь с сырыми новостями (могут жить в инфраструктуре/ORM)
     raw_news_ids: tuple[RawNewsId, ...]
     # доменные поля
     title: Title
