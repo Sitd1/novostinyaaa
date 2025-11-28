@@ -42,3 +42,10 @@ class RawNews:
     text: RawNewsText  # сырой текст
     url: Url | None
     raw_payload: dict | None  # весь сырой json, если есть
+
+    def __post_init__(self):
+        # Простейший инвариант: не может быть "получено" раньше, чем опубликовано
+        if self.fetched_at.value < self.published_at.value:
+            raise ValueError(
+                f"RawNews: fetched_at {self.fetched_at} < published_at {self.published_at}"
+            )
