@@ -8,7 +8,6 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import Protocol, Iterable, Sequence
 
 from app.core.domain.raw_news.entities import RawNews
