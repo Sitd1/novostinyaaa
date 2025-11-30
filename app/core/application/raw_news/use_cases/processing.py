@@ -8,7 +8,7 @@
 # app/core/application/raw_news/use_cases/processing.py
 
 from app.core.domain.raw_news.repositories import RawNewsRepository
-from app.core.application.raw_news.ports import RawNewsEnrichmentService
+from app.core.application.raw_news.ports.processing import RawNewsEnrichmentService
 
 
 async def enrich_raw_news(

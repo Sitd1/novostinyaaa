@@ -12,7 +12,7 @@ from typing import Iterable, Sequence
 
 from app.core.domain.raw_news.entities import RawNews
 from app.core.application.raw_news.dto.external_raw_news_item import ExternalRawNewsItem
-from app.core.application.raw_news.ports import ExternalRawNewsSource
+from app.core.application.raw_news.ports.ingest import ExternalRawNewsSource
 from app.core.domain.raw_news.repositories import RawNewsRepository
 from app.core.domain.raw_news.services import RawNewsFactory
 

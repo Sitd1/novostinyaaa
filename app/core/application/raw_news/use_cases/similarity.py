@@ -10,7 +10,7 @@ from typing import Iterable
 from app.core.domain.raw_news.entities import RawNews
 
 from app.core.application.raw_news.dto.find_similarity_raw_news_items import SimilarRawNews, RawNewsCluster
-from app.core.application.raw_news.ports import VectorSearchService, RawNewsClusterRepository
+from app.core.application.raw_news.ports.similarity import VectorSearchService, RawNewsClusterRepository
 
 
 async def find_similar_raw_news(
