@@ -6,7 +6,6 @@ from app.core.domain.raw_news.value_objects import (
     Url,
     RawPublishedAt,
     RawFetchedAt,
-    RawNewsText,
     Source,
 
     Tag,
