@@ -6,7 +6,7 @@
 #     - Сделать векторизацию (embedding)
 from __future__ import annotations
 
-from typing import Protocol, Iterable, Sequence
+from typing import Protocol
 
 from app.core.domain.raw_news.entities import RawNews
 
