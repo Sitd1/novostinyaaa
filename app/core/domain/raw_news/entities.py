@@ -12,7 +12,7 @@ from app.core.domain.raw_news.value_objects import (
     Tag,
     RawNewsImportance,
     RawNewsText,
-    RawNewsSummary, Topic
+    RawNewsSummary
 )
 
 
@@ -26,7 +26,7 @@ class RawNews:
     fetched_at: RawFetchedAt  # когда спарсили
     text: RawNewsText  # сырой текст
     url: Url | None
-    raw_payload: dict | None  # весь сырой json, если есть
+    raw_payload: RawPayload  # весь сырой json, если есть
 
     # заполняются после постобработки
     tags: tuple[Tag, ...] | None = None

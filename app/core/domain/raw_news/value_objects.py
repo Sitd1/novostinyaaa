@@ -124,3 +124,7 @@ class RawNewsImportance(Enum):
     MEDIUM = "medium"
     LOW = "low"
     IGNORE = "ignore"       # для внутренней пометки
+
+@dataclass(frozen=True)
+class RawPayload:
+    value: dict | None
