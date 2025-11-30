@@ -7,12 +7,12 @@ from __future__ import annotations
 from typing import Iterable, Sequence
 
 from app.core.domain.raw_news.entities import RawNews
-from app.core.domain.raw_news.value_objects import RawNewsImportance
+from app.core.domain.raw_news.value_objects import RawNewsImportance, Tag
 
 
 def filter_raw_news_by_tags(
     items: Iterable[RawNews],
-    required_tags: Sequence[str],
+    required_tags: Sequence[Tag],
 ) -> list[RawNews]:
     """
     Use case:
