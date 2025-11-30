@@ -7,6 +7,7 @@ from __future__ import annotations
 from typing import Iterable, Sequence
 
 from app.core.domain.raw_news.entities import RawNews
+from app.core.domain.raw_news.value_objects import RawNewsImportance
 
 
 def filter_raw_news_by_tags(
@@ -30,7 +31,7 @@ def filter_raw_news_by_tags(
 
 def filter_raw_news_by_importance(
     items: Iterable[RawNews],
-    min_importance: float,
+    min_importance: RawNewsImportance,
 ) -> list[RawNews]:
     """
     Use case:
@@ -39,5 +40,5 @@ def filter_raw_news_by_importance(
     return [
         item
         for item in items
-        if getattr(item, "importance_score", 0.0) >= min_importance
+        if item.importance >= min_importance
     ]

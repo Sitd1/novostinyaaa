@@ -118,12 +118,11 @@ class RawNewsSummary:
     value: int | None = None
 
 @dataclass(frozen=True)
-class RawNewsImportance(Enum):
-    CRITICAL = "critical"   # влияет на безопасность, большие деньги, рынок
-    HIGH = "high"
-    MEDIUM = "medium"
-    LOW = "low"
-    IGNORE = "ignore"       # для внутренней пометки
+class RawNewsImportance:
+    value: float
+
+    def __ge__(self, other: "RawNewsImportance") -> bool:
+        return self.value >= other.value
 
 @dataclass(frozen=True)
 class RawPayload:
