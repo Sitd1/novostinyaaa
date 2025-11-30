@@ -1,6 +1,7 @@
 from typing import Protocol, Iterable
 from app.core.application.raw_news.dto.external_raw_news_item import ExternalRawNewsItem
 from app.core.domain.raw_news.entities import RawNews
+from app.core.application.raw_news.dto.raw_news_enrichment_item import RawNewsEnrichmentResult
 
 
 # --- ingest
@@ -14,38 +15,13 @@ class ExternalRawNewsSource(Protocol):
 
 
 # --- processing
-class TaggingService(Protocol):
-    async def assign_tags(self, item: RawNews) -> list[str]:
-        ...
-
-
-class SummarizationService(Protocol):
-    async def summarize(self, item: RawNews) -> str:
-        ...
-
-
-class ImportanceScoringService(Protocol):
-    async def score_importance(self, item: RawNews) -> float:
+class RawNewsEnrichmentService(Protocol):
+    async def enrich(self, item: RawNews) -> RawNewsEnrichmentResult:
         """
-        Вернуть числовой скор важности (например, 0..1),
-        который потом домен может маппить в ImportanceLevel.
+        Порт для обогащения сырых новостей данными
+
+        Один вызов:
+        - читает RawNews.text (и др. поля)
+        - возвращает всё, что нужно разом.
         """
-        ...
-
-
-class EmbeddingService(Protocol):
-    async def embed(self, item: RawNews) -> list[float]:
-        ...
-
-
-class RawNewsProcessingRepository(Protocol):  # ToDo - а это еще что?
-    """
-    Репозиторий, который умеет обновлять обогащённые поля RawNews:
-    tags, summary, importance, embedding.
-    """
-
-    async def list_pending_for_processing(self, limit: int | None = None) -> list[RawNews]:
-        ...
-
-    async def save(self, item: RawNews) -> None:
         ...
