@@ -5,45 +5,12 @@
 # Работа с RawNews закончена
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Protocol, Iterable, Sequence
 
+from typing import Iterable
 from app.core.domain.raw_news.entities import RawNews
 
-
-class VectorSearchService(Protocol):
-    """
-    Порт к векторному поиску (Qdrant, PGVector, что угодно).
-    """
-
-    async def find_similar(
-        self,
-        item: RawNews,
-        limit: int = 10,
-        score_threshold: float | None = None,
-    ) -> list["SimilarRawNews"]:
-        ...
-
-
-@dataclass(frozen=True)
-class SimilarRawNews:
-    raw_news: RawNews
-    score: float
-
-
-@dataclass(frozen=True)
-class RawNewsCluster:
-    id: str
-    items: list[RawNews]
-
-
-class RawNewsClusterRepository(Protocol):
-    """
-    Репозиторий для кластеров (групп) RawNews.
-    """
-
-    async def save_cluster(self, cluster: RawNewsCluster) -> None:
-        ...
+from app.core.application.raw_news.dto.find_similarity_raw_news_items import SimilarRawNews, RawNewsCluster
+from app.core.application.raw_news.ports import VectorSearchService, RawNewsClusterRepository
 
 
 async def find_similar_raw_news(
