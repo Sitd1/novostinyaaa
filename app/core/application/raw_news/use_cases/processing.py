@@ -8,7 +8,6 @@
 
 from __future__ import annotations
 
-from app.core.domain.raw_news.entities import RawNews
 from app.core.domain.raw_news.repositories import RawNewsRepository
 from app.core.application.raw_news.ports import (
     TaggingService,
