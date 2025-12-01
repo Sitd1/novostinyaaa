@@ -8,26 +8,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from database.models.base import Base
 
 
-class SourceORM(Base):
-    """Таблица справочник для хранения источников новостей, значения должны быть уникальными"""
-    __tablename__ = "source"
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    type: Mapped[str] = mapped_column(String(255), index=True)
-    name: Mapped[str] = mapped_column(String(32), index=True)
-    title: Mapped[str] = mapped_column(String(255), index=True)
-    external_id: Mapped[str | None] = mapped_column(String(50), index=True)
-    description: Mapped[str | None] = mapped_column(String(255), index=True)
-    url: Mapped[str | None] = mapped_column(String(255), index=True)
-
-    # связь 1 → N
-    raw_news: Mapped[list["RawNewsORM"]] = relationship(
-        back_populates="source", cascade="all, delete-orphan"
-    )
-
-    def __repr__(self) -> str:
-        return f"<src_name={self.name} src_title={self.title}> description={self.description}>"
-
-
 
 class RawNewsORM(Base):
     __tablename__ = "tg_raw_news"
@@ -60,7 +40,7 @@ class RawNewsORM(Base):
     source_fk: Mapped[int] = mapped_column(ForeignKey("source.id"), index=True)
 
     # ORM связь
-    source: Mapped[SourceORM] = relationship(back_populates="raw_news")
+    source: Mapped["SourceORM"] = relationship(back_populates="raw_news")
 
     __table_args__ = (
         UniqueConstraint("source_fk", "external_id", name="uq_source_msg"),

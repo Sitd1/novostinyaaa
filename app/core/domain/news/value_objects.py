@@ -1,19 +1,23 @@
 from datetime import datetime
 from enum import Enum
 from dataclasses import dataclass
+from app.core.domain.raw_news.value_objects import Url
 
 
 @dataclass(frozen=True)
 class NewsEventId:
     value: int
 
+
 @dataclass(frozen=True)
 class Title:
     value: str
 
+
 @dataclass(frozen=True)
 class Summary:
     value: str  # уже очищенный/суммаризованный текст
+
 
 @dataclass(frozen=True)
 class ImportanceLevel(Enum):
@@ -22,6 +26,7 @@ class ImportanceLevel(Enum):
     MEDIUM = "medium"
     LOW = "low"
     IGNORE = "ignore"       # для внутренней пометки
+
 
 @dataclass(frozen=True)
 class Topic(Enum):
@@ -40,10 +45,11 @@ class Geography:
     region: str | None
     city: str | None
 
+
 @dataclass(frozen=True)
 class EventTime:
     # например, событие могло начаться вчера и длится сейчас
-    started_at: datetime
+    started_at: datetime | None
     ended_at: datetime | None
 
 
@@ -51,6 +57,13 @@ class EventTime:
 class UserInterestScore:
     value: int
 
+
 @dataclass(frozen=True)
 class Tag:
     value: str | None = None # более свободные метки: "санкции", "нефть", "AI", "выборы"
+
+
+@dataclass(frozen=True)
+class Source:
+    name: str
+    Url: Url
