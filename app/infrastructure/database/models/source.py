@@ -4,7 +4,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from database.models.base import Base
 
 
-class SourceORM(Base):
+class NewsSourceORM(Base):
     """Таблица справочник для хранения источников новостей, значения должны быть уникальными"""
     __tablename__ = "source"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)

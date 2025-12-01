@@ -1,42 +1,72 @@
 from __future__ import annotations
+
 from datetime import datetime
+from typing import List
 
 from sqlalchemy import (
-    String, Text, DateTime, ForeignKey
+    Integer,
+    String,
+    Text,
+    DateTime,
+    Enum as SAEnum,
+    func,
 )
-from sqlalchemy.orm import (
-    Mapped, mapped_column, relationship
-)
-from sqlalchemy.sql import func
-from database.models.base import Base
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-# ---------- News (новость) ----------
-class NewsEventsORM(Base):
+from app.core.domain.news.value_objects import ImportanceLevel
+from app.infrastructure.database.models.base import Base
+
+
+
+class NewsEventORM(Base):
     __tablename__ = "news_events"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    title: Mapped[str] = mapped_column(String(200), nullable=False, index=True)
-    summary: Mapped[str | None] = mapped_column(Text)  # краткий лид/анонс
-    source_name: Mapped[str | None] = mapped_column(String(120))
-    source_url: Mapped[str | None] = mapped_column(String(500))
-    published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), index=True)
-    relevance_reasoning: Mapped[str] = mapped_column(Text)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
 
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), onupdate=func.now())
-    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))  # мягкое удаление (опц.)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False,
+        server_default=func.now(), onupdate=func.now()
+    )
 
+    title: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
+    summary: Mapped[str] = mapped_column(Text, nullable=False)
 
-    # FK + relationship на RunsStory
+    importance: Mapped[ImportanceLevel] = mapped_column(
+        SAEnum(ImportanceLevel, name="importance_level"), nullable=False, index=True
+    )
 
-    # Foreign Key для связи с SearchRun
-    run_fk: Mapped[int] = mapped_column(ForeignKey("search_runs.id"), nullable=False)
+    # EventTime
+    event_started_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, index=True
+    )
+    event_ended_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True, index=True
+    )
 
-    # Relationship: многие новости принадлежат одному запуску поиска
-    run: Mapped["RunsStory"] = relationship(back_populates="news_items")
+    # Geography
+    geo_country: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    geo_region: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    geo_city: Mapped[str | None] = mapped_column(String(128), nullable=True)
+
+    user_interest_score: Mapped[int | None] = mapped_column(Integer, nullable=True)
+
+    # MANY raw news
+    raw_news_links: Mapped[list["NewsEventRawNewsORM"]] = relationship(
+        back_populates="event",
+        cascade="all, delete-orphan",
+        lazy="selectin"
+    )
+
+    # MANY tags
+    tags: Mapped[list["NewsEventTagORM"]] = relationship(
+        back_populates="event",
+        cascade="all, delete-orphan",
+        lazy="selectin"
+    )
 
     def __repr__(self):
-        return f"<News(id={self.id}, title='{self.title}')>"
+        return f"<NewsEventORM id={self.id} title={self.title!r}>"
 
-
-# ToDo news_event_raw_news создать

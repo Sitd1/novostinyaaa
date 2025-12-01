@@ -14,7 +14,9 @@ from app.core.domain.news.value_objects import (
     Topic,
     Tag,
     Geography,
-    EventTime, UserInterestScore,
+    EventTime,
+    UserInterestScore,
+    Source,
 )
 from app.core.domain.raw_news.value_objects import RawNewsId
 
@@ -35,13 +37,17 @@ class NewsEvent:
     raw_news_ids: tuple[RawNewsId, ...]
     # доменные поля
     title: Title
-    summary: Summary
-    importance: ImportanceLevel
-    topics: tuple[Topic, ...]
-    tags: tuple[Tag, ...]
-    geography: Geography | None
+
+    summary: Summary               # расчетное поле
+    importance: ImportanceLevel    # расчетное поле
+    tags: tuple[Tag, ...]          # расчетное поле
+    # topics: tuple[Topic, ...]      # расчетное поле
+    geography: Geography | None    # расчетное поле
+
+    sources: tuple[Source, ...]
+
     event_time: EventTime  # когда это произошло / актуально
-    user_interest_score: UserInterestScore | None = None
+    user_interest_score: UserInterestScore | None = None  # интересы отдельного пользователя
 
     # ---------- Фабрики / конструкторы ----------
 
@@ -55,7 +61,6 @@ class NewsEvent:
         event_time: EventTime,
         *,
         raw_news_ids: Iterable[RawNewsId] = (),
-        topics: Iterable[Topic] = (),
         tags: Iterable[Tag] = (),
         geography: Geography | None = None,
         created_at: datetime | None = None,
@@ -75,7 +80,6 @@ class NewsEvent:
 
         # убираем дубликаты и фиксируем порядок
         raw_ids_tuple = tuple(dict.fromkeys(raw_news_ids))
-        topics_tuple = tuple(dict.fromkeys(topics))
         tags_tuple = tuple(dict.fromkeys(tags))
 
         return cls(
@@ -86,7 +90,6 @@ class NewsEvent:
             title=title,
             summary=summary,
             importance=importance,
-            topics=topics_tuple,
             tags=tags_tuple,
             geography=geography,
             event_time=event_time,
@@ -117,32 +120,32 @@ class NewsEvent:
         new_raw_ids = tuple(rid for rid in self.raw_news_ids if rid != raw_id)
         return replace(self, raw_news_ids=new_raw_ids)
 
-    def with_topics(self, topics: Iterable[Topic]) -> "NewsEvent":
-        """
-        Полностью заменить список topics.
-        """
-        topics_tuple = tuple(dict.fromkeys(topics))
-        return replace(self, topics=topics_tuple)
-
-    def with_added_topic(self, topic: Topic) -> "NewsEvent":
-        """
-        Добавить один Topic, без дубликатов.
-        """
-        if topic in self.topics:
-            return self
-
-        new_topics = self.topics + (topic,)
-        return replace(self, topics=new_topics)
-
-    def with_removed_topic(self, topic: Topic) -> "NewsEvent":
-        """
-        Убрать один Topic.
-        """
-        if topic not in self.topics:
-            return self
-
-        new_topics = tuple(t for t in self.topics if t != topic)
-        return replace(self, topics=new_topics)
+    # def with_topics(self, topics: Iterable[Topic]) -> "NewsEvent":
+    #     """
+    #     Полностью заменить список topics.
+    #     """
+    #     topics_tuple = tuple(dict.fromkeys(topics))
+    #     return replace(self, topics=topics_tuple)
+    #
+    # def with_added_topic(self, topic: Topic) -> "NewsEvent":
+    #     """
+    #     Добавить один Topic, без дубликатов.
+    #     """
+    #     if topic in self.topics:
+    #         return self
+    #
+    #     new_topics = self.topics + (topic,)
+    #     return replace(self, topics=new_topics)
+    #
+    # def with_removed_topic(self, topic: Topic) -> "NewsEvent":
+    #     """
+    #     Убрать один Topic.
+    #     """
+    #     if topic not in self.topics:
+    #         return self
+    #
+    #     new_topics = tuple(t for t in self.topics if t != topic)
+    #     return replace(self, topics=new_topics)
 
     def with_tags(self, tags: Iterable[Tag]) -> "NewsEvent":
         """

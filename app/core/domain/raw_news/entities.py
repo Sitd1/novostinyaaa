@@ -37,7 +37,7 @@ class Source:
     @classmethod
     def telegram(
         cls,
-        username: str,
+        username: str,  #@sitd1
         title: str,
         channel_code: str | None = None,
         url: str | None = None,
