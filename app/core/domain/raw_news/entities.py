@@ -59,11 +59,11 @@ class Source:
 class RawNews:
     id: RawNewsId
     source_id: SourceId
-    external_id: ExternalMessageId  # id сообщения в TG / API
+    external_id: ExternalMessageId | None  # id сообщения в TG / API
     published_at: RawPublishedAt    # когда опубликовали
     fetched_at: RawFetchedAt        # когда спарсили
-    text: RawNewsText               # сырой текст
-    url: Url | None
+    text: RawNewsText               # текст сообщения
+    url: Url | None                 # ссылка на саму новость
     raw_payload: RawPayload         # весь сырой json, если есть
 
     # заполняются после постобработки
