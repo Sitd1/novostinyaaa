@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import List
 
 from sqlalchemy import (
     Integer,
@@ -15,7 +14,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.domain.news.value_objects import ImportanceLevel
 from app.infrastructure.database.models.base import Base
-
 
 
 class NewsEventORM(Base):

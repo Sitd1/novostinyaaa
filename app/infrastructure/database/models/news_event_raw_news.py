@@ -8,7 +8,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.infrastructure.database.models.raw_news import RawNewsORM  # или как он у тебя называется
-from database.models.base import Base  # как у тебя в Source
+from database.models.base import Base
 
 
 

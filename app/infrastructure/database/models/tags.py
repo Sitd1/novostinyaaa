@@ -8,9 +8,9 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from database.models.base import Base  # как у тебя в Source
+from database.models.base import Base
 
-
+#
 class NewsEventTagORM(Base):
     __tablename__ = "news_event_tags"
 

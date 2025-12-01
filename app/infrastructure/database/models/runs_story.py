@@ -8,9 +8,6 @@ from database.models.base import Base
 
 
 
-
-
-
 class RunsStory(Base):
     __tablename__ = "search_runs"
 
