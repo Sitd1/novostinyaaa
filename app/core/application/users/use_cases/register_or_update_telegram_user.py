@@ -1,7 +1,7 @@
 # app/core/application/users/use_cases/register_or_update_telegram_user.py
 
 from dataclasses import replace
-from datetime import datetime
+from datetime import datetime, timezone
 
 from app.core.domain.users.entities import TelegramUser
 from app.core.domain.users.factories import TelegramUserFactory
@@ -31,7 +31,7 @@ async def register_or_update_telegram_user(
     - если не найден -> создаёт нового через фабрику
     - если найден -> обновляет профиль (name, username, updated_at)
     """
-    ts = now or datetime.utcnow()  # FixMe (исправить)
+    ts = now or datetime.now(timezone.utc)
 
     existing = await repo.get_by_telegram_id(telegram_id)
 

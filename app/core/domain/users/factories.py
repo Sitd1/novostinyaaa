@@ -1,5 +1,5 @@
 # app/core/domain/users/factories.py
-from datetime import datetime
+from datetime import datetime, timezone
 
 from app.core.domain.users.entities import TelegramUser
 from app.core.domain.users.value_objects import (
@@ -28,7 +28,7 @@ class TelegramUserFactory:
         """
         Создать нового пользователя Telegram с корректно выставленными датами.
         """
-        ts = now or datetime.utcnow()  # FixMe
+        ts = now or datetime.now(timezone.utc)
 
         return TelegramUser(
             id=user_id,
