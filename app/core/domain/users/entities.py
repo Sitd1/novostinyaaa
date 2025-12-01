@@ -16,9 +16,3 @@ class TelegramUser:
     telegram_id: TelegramId  # уникальный идентификатор Telegram
     created_at: datetime
     updated_at: datetime
-
-
-
-
-
-
