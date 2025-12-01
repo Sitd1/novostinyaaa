@@ -1,21 +1,18 @@
-# Тут живут сущности, например:
-#
-# * `News` – новость:
-#
-#   * id, заголовок, текст, источник, время, важность и т.п.
-# * `RawNews` – сырая новость из телеграм/гугл/ещё откуда-то.
-# * `RunStory` или аналог – сущность про «запуск обработки новостей» (например, одна итерация скрейпа).
-import datetime
-# Сущности:
-#
-# * имеют идентичность (id),
-# * содержат бизнес-логику (например, метод `mark_as_important()`).
 from dataclasses import dataclass
+from datetime import datetime
+
+from app.core.domain.users.value_objects import UserId, HumanName, TgUserName, TelegramId
 
 
 
-
-
-
-
-
+@dataclass(frozen=True)
+class TelegramUser:
+    """
+    Доменная сущность пользователя Telegram.
+    """
+    id: UserId
+    name: HumanName  # То, что пишется в профиле
+    username: TgUserName | None  # Никнейм
+    telegram_id: TelegramId  # уникальный идентификатор Telegram
+    created_at: datetime
+    updated_at: datetime

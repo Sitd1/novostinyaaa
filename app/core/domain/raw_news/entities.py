@@ -29,7 +29,7 @@ class RawNews:
 
     # заполняются после постобработки
     tags: tuple[Tag, ...] | None = None
-    interest_importance: RawNewsImportance | None = None
+    importance: RawNewsImportance | None = None
     summary: RawNewsSummary | None = None
 
     def __post_init__(self):
