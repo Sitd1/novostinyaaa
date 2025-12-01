@@ -2,17 +2,12 @@ from datetime import datetime
 from enum import Enum
 from dataclasses import dataclass
 from urllib.parse import urlparse
+import re
 
 # --- Основные VO для RawNews
 @dataclass(frozen=True)
 class RawNewsId:
     value: int
-
-
-@dataclass(frozen=True)
-class SourceDescription:
-    """Описание канала - можно добавлять, можно не добавлять"""
-    value: str | None
 
 
 @dataclass(frozen=True)
@@ -28,13 +23,6 @@ class RawFetchedAt:
 @dataclass(frozen=True)
 class RawNewsText:
     value: str
-
-
-class SourceType(Enum):
-    TELEGRAM = "telegram"
-    # RSS = "rss"
-    # API = "api"
-    # OTHER = "other"
 
 
 @dataclass(frozen=True)
@@ -64,10 +52,42 @@ class Url:
             raise ValueError(f"Url: invalid domain '{parsed.netloc}' in '{self.value}'")
 
 
+# --- VO, которые будут внесены после обработки RawNews
+
 @dataclass(frozen=True)
-class SourceTitle:
-    """Человеческое название канала (как в канале)"""
-    value: str
+class Tag:
+    value: str | None = None # более свободные метки: "санкции", "нефть", "AI", "выборы"
+
+
+@dataclass(frozen=True)
+class RawNewsSummary:
+    value: int | None = None
+
+
+@dataclass(frozen=True)
+class RawNewsImportance:
+    value: float
+
+    def __ge__(self, other: "RawNewsImportance") -> bool:
+        return self.value >= other.value
+
+
+@dataclass(frozen=True)
+class RawPayload:
+    value: dict | None
+
+
+# --- Source VO
+@dataclass(frozen=True)
+class SourceId:
+    value: int
+
+
+class SourceType(Enum):
+    TELEGRAM = "telegram"
+    # RSS = "rss"
+    # API = "api"
+    # OTHER = "other"
 
 
 @dataclass(frozen=True)
@@ -77,53 +97,66 @@ class SourceName:
 
 
 @dataclass(frozen=True)
-class SourceInternalCode:
-    """Код канала (если есть) id12345"""
+class SourceTitle:
+    """Человеческое название канала (как в канале)"""
+    value: str
+
+
+@dataclass(frozen=True)
+class ExternalSourceId:
+    value: str
+
+
+@dataclass(frozen=True)
+class SourceDescription:
+    """Описание канала - можно добавлять, можно не добавлять"""
     value: str | None
 
 
 @dataclass(frozen=True)
-class Source:
-    type: SourceType    # enum: TELEGRAM, RSS, API, OTHER
-    title: SourceTitle
-    name: SourceName           # "Meduza", "The Bell" и т.д. tg channel name
-    internal_code: SourceInternalCode | None # "meduza_tg_main" @lentach
-    description: SourceDescription | None = None
-    url: Url | None = None
+class SourceName:
+    """Для телеграма - это название канала @lentach"""
+    value: str
 
-    @classmethod
-    def telegram(cls, name: str, channel_code: str, url: str | None = None, description: str | None = None) -> "Source":
-        """
-        channel_code — то, что тебе удобно:
-        - username: "meduzalive"
-        - или id: "123456789"
-        """
-        return cls(
-            type=SourceType.TELEGRAM,
-            name=name,
-            internal_code=f"tg:{channel_code}",
-            description=description,
-            url=Url(url) if url else None,
-        )
-
-
-# --- VO, которые будут внесены после обработки RawNews
 
 @dataclass(frozen=True)
-class Tag:
-    value: str | None = None # более свободные метки: "санкции", "нефть", "AI", "выборы"
+class TgSourceName(SourceName):
+    value: str
 
-@dataclass(frozen=True)
-class RawNewsSummary:
-    value: int | None = None
+    def __post_init__(self) -> None:
+        v = self.value
 
-@dataclass(frozen=True)
-class RawNewsImportance:
-    value: float
+        if not isinstance(v, str):
+            raise TypeError("TgSourceName.value must be a string")
 
-    def __ge__(self, other: "RawNewsImportance") -> bool:
-        return self.value >= other.value
+        # Разрешаем передавать с @, но внутри храним без @
+        if v.startswith("@"):
+            v = v[1:]
 
-@dataclass(frozen=True)
-class RawPayload:
-    value: dict | None
+        # Нормализуем к нижнему регистру
+        v = v.lower()
+
+        # 1. Длина от 5 до 32 символов
+        if not (5 <= len(v) <= 32):
+            raise ValueError("TgSourceName must be between 5 and 32 characters")
+
+        # 2. Только латинские буквы, цифры и подчёркивания
+        if not re.fullmatch(r"[a-z0-9_]+", v):
+            raise ValueError(
+                "TgSourceName may contain only [a-z], digits [0-9] and underscore (_)"
+            )
+
+        # 3. Не должно начинаться с цифры
+        if v[0].isdigit():
+            raise ValueError("TgSourceName must not start with a digit")
+
+        # 4. Нельзя использовать два подчёркивания подряд
+        if "__" in v:
+            raise ValueError("TgSourceName must not contain double underscores '__'")
+
+        # 5. Нельзя заканчиваться на подчёркивание
+        if v.endswith("_"):
+            raise ValueError("TgSourceName must not end with underscore")
+
+        # Так как dataclass(frozen=True), обновляем нормализованное значение через object.__setattr__
+        object.__setattr__(self, "value", v)
