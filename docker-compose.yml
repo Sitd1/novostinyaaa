@@ -3,7 +3,7 @@ version: '3.8'
 services:
   db:
     image: postgres:16
-    container_name: novostinya_postgres
+    container_name: novostinyaaa_postgres
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
