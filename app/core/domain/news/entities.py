@@ -11,7 +11,7 @@ from app.core.domain.news.value_objects import (
     Title,
     Summary,
     ImportanceLevel,
-    Topic,
+    # Topic,
     Tag,
     Geography,
     EventTime,
@@ -190,4 +190,4 @@ class NewsEvent:
         """
         Обновить updated_at (например, при любом изменении).
         """
-        return replace(self, updated_at=at or datetime.utcnow())
+        return replace(self, updated_at=at or datetime.now(timezone.utc))

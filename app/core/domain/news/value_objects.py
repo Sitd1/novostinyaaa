@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import Enum
 from dataclasses import dataclass
-from app.core.domain.raw_news.value_objects import Url
+from app.core.domain.sources.value_objects import Url
 
 
 @dataclass(frozen=True)
@@ -19,13 +19,18 @@ class Summary:
     value: str  # уже очищенный/суммаризованный текст
 
 
+# @dataclass(frozen=True)
+# class ImportanceLevel(Enum):
+#     CRITICAL = "critical"   # влияет на безопасность, большие деньги, рынок
+#     HIGH = "high"
+#     MEDIUM = "medium"
+#     LOW = "low"
+#     IGNORE = "ignore"       # для внутренней пометки
+
+
 @dataclass(frozen=True)
-class ImportanceLevel(Enum):
-    CRITICAL = "critical"   # влияет на безопасность, большие деньги, рынок
-    HIGH = "high"
-    MEDIUM = "medium"
-    LOW = "low"
-    IGNORE = "ignore"       # для внутренней пометки
+class ImportanceLevel:
+    value: int
 
 
 @dataclass(frozen=True)

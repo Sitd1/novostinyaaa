@@ -5,7 +5,7 @@ from datetime import datetime
 from sqlalchemy import DateTime, Integer, String, Text, UniqueConstraint, ForeignKey, Numeric
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from database.models.base import Base
+from app.infrastructure.database.models.base import Base
 
 
 
@@ -15,7 +15,7 @@ class RawNewsORM(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
 
     # Идентификатор сообщения внутри канала / source
-    external_id: Mapped[int] = mapped_column(Integer, index=True)
+    external_id: Mapped[str] = mapped_column(index=True)
 
     # Дата и время публикации
     published_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
@@ -35,6 +35,7 @@ class RawNewsORM(Base):
     tags: Mapped[str | None] = mapped_column(Text, nullable=True)
     importance: Mapped[Decimal] = mapped_column(Numeric(5, 2), nullable=True)
     summary: Mapped[str] = mapped_column(Text, nullable=True)
+    raw_payload: Mapped[str | None] = mapped_column(Text, nullable=True)  # весь сырой json, если есть
 
     # foreign key
     source_fk: Mapped[int] = mapped_column(ForeignKey("source.id"), index=True)
