@@ -7,12 +7,10 @@ from sqlalchemy import (
     String,
     Text,
     DateTime,
-    Enum as SAEnum,
     func,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.core.domain.news.value_objects import ImportanceLevel
 from app.infrastructure.database.models.base import Base
 
 
@@ -32,9 +30,7 @@ class NewsEventORM(Base):
     title: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     summary: Mapped[str] = mapped_column(Text, nullable=False)
 
-    importance: Mapped[ImportanceLevel] = mapped_column(
-        SAEnum(ImportanceLevel, name="importance_level"), nullable=False, index=True
-    )
+    importance: Mapped[int]
 
     # EventTime
     event_started_at: Mapped[datetime] = mapped_column(
