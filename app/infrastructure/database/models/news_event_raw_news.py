@@ -7,8 +7,8 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.infrastructure.database.models.raw_news import RawNewsORM  # или как он у тебя называется
-from database.models.base import Base
+from app.infrastructure.database.models.raw_news import RawNewsORM
+from app.infrastructure.database.models.base import Base
 
 
 
@@ -30,4 +30,3 @@ class NewsEventRawNewsORM(Base):
     __table_args__ = (
         UniqueConstraint("event_id", "raw_news_id", name="uq_event_raw"),
     )
-
