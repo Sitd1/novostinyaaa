@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from app.core.domain.raw_news.value_objects import (
+from app.core.domain.sources.value_objects import (
     Url,
     SourceId,
     SourceType,
