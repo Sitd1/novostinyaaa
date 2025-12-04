@@ -8,14 +8,11 @@
 
 from __future__ import annotations
 
-from typing import Iterable, Sequence
-
-from app.core.domain.raw_news.entities import RawNews
 from app.core.application.raw_news.dto.external_raw_news_item import ExternalRawNewsItem
 from app.core.application.raw_news.ports.ingest import ExternalRawNewsSource
+from app.core.domain.raw_news.entities import RawNews
 from app.core.domain.raw_news.repositories import RawNewsRepository
 from app.core.domain.raw_news.services import RawNewsFactory
-
 
 
 async def fetch_new_raw_news(
@@ -48,9 +45,9 @@ async def ingest_new_raw_news(
     raw_news_list: list[RawNews] = [
         factory.create_from_external_item(dto) for dto in raw_items
     ]
+    created_count = len(raw_news_list)
 
     # 3. Сохранили пачкой
     await repo.save_many(raw_news_list)
-    created_count = len(raw_news_list)
 
     return created_count
