@@ -2,13 +2,17 @@
 # 3. Фильтрация новостей
 #     - Отфильтровываем по tags
 #     - Фильтр по importance
+#
+# на данном шаге мы просто отфильтровываем явный мусор
+# "мусорность" будет определяться тегами и importance
+
 from __future__ import annotations
 
-from typing import Iterable, Sequence
+from typing import Sequence
 
 from app.core.domain.raw_news.entities import RawNews
-from app.core.domain.raw_news.value_objects import RawNewsImportance, Tag
 from app.core.domain.raw_news.repositories import RawNewsRepository
+from app.core.domain.raw_news.value_objects import RawNewsImportance, Tag
 
 
 async def get_filtered_raw_news_by_tags(
