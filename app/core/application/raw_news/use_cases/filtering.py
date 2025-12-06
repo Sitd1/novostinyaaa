@@ -8,37 +8,23 @@ from typing import Iterable, Sequence
 
 from app.core.domain.raw_news.entities import RawNews
 from app.core.domain.raw_news.value_objects import RawNewsImportance, Tag
+from app.core.domain.raw_news.repositories import RawNewsRepository
 
 
-def filter_raw_news_by_tags(
-    items: Iterable[RawNews],
+async def get_filtered_raw_news_by_tags(
+    repo: RawNewsRepository,
     required_tags: Sequence[Tag],
+    importance_threshold: RawNewsImportance,
+    limit: int | None = None
 ) -> list[RawNews]:
-    """
-    Use case:
-    - отфильтровать RawNews по наличию нужных тегов.
-    """
-    required = set(required_tags)
-    result: list[RawNews] = []
 
-    for item in items:
-        item_tags = set(item.tags)  # предполагаем, что в сущности есть .tags
-        if required.issubset(item_tags):
-            result.append(item)
-
-    return result
-
-
-def filter_raw_news_by_importance(
-    items: Iterable[RawNews],
-    min_importance: RawNewsImportance,
-) -> list[RawNews]:
     """
-    Use case:
-    - отфильтровать RawNews по числовому скору важности.
-    """
-    return [
-        item
-        for item in items
-        if item.importance >= min_importance
-    ]
+        Query use case:
+        - отфильтровать RawNews по нужным тегам и порогу важности
+        - вернуть результат
+        """
+    return await repo.get_filtered_news(
+        required_tags=required_tags,
+        importance_threshold=importance_threshold,
+        limit=limit
+    )
