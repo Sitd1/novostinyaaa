@@ -8,14 +8,19 @@ from __future__ import annotations
 from datetime import timedelta
 
 from app.core.domain.raw_news.entities import RawNews
-from app.core.domain.raw_news.repositories import RawNewsRepository, NewsEventRepository, EmbeddingSimilarityService
+from app.core.domain.raw_news.repositories import (
+    RawNewsRepository,
+    NewsEventRepository,
+    SimilarityMatcherService
+)
 from app.core.application.raw_news.config import ClusteringConfig
+from app.core.domain.news.entities import NewsEvent
 
 
 async def cluster_pending_raw_news(
     raw_repo: RawNewsRepository,
     events_repo: NewsEventRepository,
-    similarity_service: EmbeddingSimilarityService,
+    similarity_matcher: SimilarityMatcherService,
     config: ClusteringConfig | None = None,
     limit: int | None = None,
 ) -> None:
@@ -27,81 +32,67 @@ async def cluster_pending_raw_news(
     """
     if config is None:
         config = ClusteringConfig()
+    # --------------------------------------------------------------------------------
+    # --- 1. забрать пачку RawNews по фильтру (у которых есть embedding, но ещё нет события)
+    # --------------------------------------------------------------------------------
+    items: list[RawNews] = await raw_repo.list_pending_for_event_clustering(limit=limit)
 
-    items = await raw_repo.list_pending_for_clustering(limit=limit)
+    # создаем события
+    updated_raw_news = []  # связываем raw_news и event
+    new_events = []
+    updated_events = []
 
+    # --------------------------------------------------------------------------------
+    # --- 3. Обработка каждой сырой новости
+    # --------------------------------------------------------------------------------
     for raw in items:
-        # На всякий случай — пропускаем, если embedding нет (не обработали enrichment)
-        if raw.embedding is None:
-            continue
 
-        await _assign_single_raw_news_to_event(
-            raw=raw,
-            raw_repo=raw_repo,
-            events_repo=events_repo,
-            similarity_service=similarity_service,
-            config=config,
-        )
+        # Интуиция: Если time_window_before = 24 часа,
+        # то для новости в 15:00 мы смотрим события примерно с 15:00 вчера до 15:00 сегодня.
+        window_start = raw.published_at - config.time_window_before  # timedelta
+        window_end = raw.published_at + config.time_window_after  # timedelta
+
+        # 3.2. Ищем кандидаты-события - получить небольшой список событий,
+        # с которыми можно сравнить текущую новость
 
 
-async def _assign_single_raw_news_to_event(
-    raw: RawNews,
-    raw_repo: RawNewsRepository,
-    events_repo: NewsEventRepository,
-    similarity_service: EmbeddingSimilarityService,
-    config: ClusteringConfig,
-) -> None:
-    """
-    Логика для одной RawNews:
-    - поиск ближайших соседей по embedding в окне [published_at - delta, published_at + delta]
-    - выбор лучшего (по cosine similarity)
-    - если best_score >= threshold → присоединяем к его событию
-      иначе → создаём новое событие.
-    """
-    center_ts = raw.published_at.value  # если RawPublishedAt — VO, берём .value (datetime)
-    time_from = center_ts - config.time_window
-    time_to = center_ts + config.time_window
+        # смотрим ближайшие и косинусное расстояние отсеиваем по threshold также смотрим прочие фильтры
+        event_candidates: list[NewsEvent] = events_repo.get_news_events_candidates(raw, config) # совпадение по диапазону времени window_start, window_end и прочее по конфигу
 
-    candidates = await raw_repo.search_similar_by_embedding(
-        embedding=raw.embedding,
-        published_from=time_from,
-        published_to=time_to,
-        top_k=config.top_k_neighbors,
-    )
-
-    best_candidate: RawNews | None = None
-    best_score: float = -1.0
-
-    for candidate in candidates:
-        # можно отфильтровать ту же самую news на всякий случай
-        if candidate.id == raw.id:
-            continue
-        if candidate.embedding is None:
-            continue
-
-        score = await similarity_service.cosine_similarity(raw.embedding, candidate.embedding)
-        if score > best_score:
-            best_score = score
-            best_candidate = candidate
-
-    if best_candidate is None or best_score < config.similarity_threshold:
-        # Похожих нет → создаём новое событие
-        event = await events_repo.create_from_raw_news(raw)
-        await raw_repo.attach_to_event(raw, event)
-        # bounds у нового события можно проставить сразу в create_from_raw_news
-    else:
-        # Нашли подходящее событие → присоединяем к нему
-        if best_candidate.event_id is None:
-            # теоретически не должно быть, но на всякий случай можно обработать
-            # например, создать event для best_candidate
-            event = await events_repo.create_from_raw_news(best_candidate)
-            await raw_repo.attach_to_event(best_candidate, event)
+        if event_candidates:
+            similarity_candidates: dict[int, int] = await similarity_matcher.get_similar_news_candidates(raw, config)
         else:
-            event = await events_repo.get_by_id(best_candidate.event_id)
+            similarity_candidates: dict[int, int] = dict()
 
-        if event is None:
-            # fallback: если по какой-то причине event не нашли — создаём новый
-            event = await events_repo.create_from_raw_news(raw)
+        # Создание нового события (нет подходящих events)
+        if len(similarity_candidates.keys()) == 0:
+            event = await events_repo.create_from_raw_news(raw)  # новое событие
+            new_events.append(event)
+            # У raw появляется ссылка на это событие (на уровне доменной логики) — «я теперь в этом событии». event_id
+            # Это событие и обновлённая новость откладываются для последующего сохранения
+        # Добавление события к
+        else:
+            # {event_id: similarity_with_raw_news} -> выбираем самое близкое событие или еще просим llm сопоставить с пачкой
+            # принимаем решение создать Event или прикрепить новость к старом Event
+            #
 
-        await raw_repo.attach_to_event(raw, event)
-        await events_repo.update_bounds(event, raw)
+            # пропускаем кандидаты через ллм и проверяем (небольшую) пачку подходит это или нет
+            # я бы всё же это просто сделал на стороне агентов # todo: del this comment
+            chosen_event = await similarity_matcher.similaritychoose_event_for_raw_news(raw, similarity_candidates)
+            if chosen_event is None:
+                event = await events_repo.create_from_raw_news(raw)
+                new_events.append(event)
+            else:
+                event = await events_repo.attach_raw_to_existing_event(raw, chosen_event)
+                updated_events.append(event)
+
+        # обновляем только raw приписывая event_id в качестве fk
+        raw = raw.with_event_key(event.id)
+        updated_raw_news.append(raw)
+
+    # --------------------------------------------------------------------------------
+    # --- 4. Сохранение результатов
+    # --------------------------------------------------------------------------------
+    await raw_repo.update_many(updated_raw_news)  # обновляем raw_repo
+    await events_repo.update_many(updated_events)
+    await events_repo.save_many(new_events)

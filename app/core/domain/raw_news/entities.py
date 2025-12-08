@@ -58,3 +58,6 @@ class RawNews:
 
     def with_embedding(self, embedding: RawNewsEmbedding) -> "RawNews":
         return replace(self, embedding=embedding)
+
+    def with_event_key(self, event_key: EventKey) -> "RawNews":
+        return replace(self, event_fk=event_key)
