@@ -10,7 +10,10 @@ from app.core.domain.raw_news.value_objects import (
     RawNewsImportance,
     RawNewsText,
     RawNewsSummary,
-    RawPayload, RawNewsEmbedding,
+    RawPayload,
+    RawNewsEmbedding,
+
+    EventKey
 )
 from app.core.domain.sources.value_objects import SourceId, Url
 
@@ -31,6 +34,9 @@ class RawNews:
     importance: RawNewsImportance | None = None
     summary: RawNewsSummary | None = None
     embedding: RawNewsEmbedding | None = None
+
+    # для объединения
+    event_fk: EventKey | None = None
 
     def __post_init__(self):
         # Простейший инвариант: не может быть "получено" раньше, чем опубликовано
