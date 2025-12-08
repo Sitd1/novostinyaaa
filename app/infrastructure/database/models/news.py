@@ -47,18 +47,10 @@ class NewsEventORM(Base):
 
     user_interest_score: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
-    # MANY raw news
-    raw_news_links: Mapped[list["NewsEventRawNewsORM"]] = relationship(
+    # связь 1 → N
+    raw_news: Mapped[list["RawNewsORM"]] = relationship(
         back_populates="event",
         cascade="all, delete-orphan",
-        lazy="selectin"
-    )
-
-    # MANY tags
-    tags: Mapped[list["NewsEventTagORM"]] = relationship(
-        back_populates="event",
-        cascade="all, delete-orphan",
-        lazy="selectin"
     )
 
     def __repr__(self):
