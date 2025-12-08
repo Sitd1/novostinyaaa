@@ -90,3 +90,21 @@ class RawNewsSimilarityUseCase:
         await self.raw_repo.update_many(self.updated_raw_news)
         await self.events_repo.update_many(self.updated_events)
         await self.events_repo.save_many(self.new_events)
+
+
+async def create_events_from_raw_news(
+        raw_repo: RawNewsRepository,
+        events_repo: NewsEventRepository,
+        similarity_matcher: SimilarityMatcherService,
+        config: ClusteringConfig | None = None,
+        limit: int | None = None
+) -> list[RawNews]:
+
+    rns = RawNewsSimilarityUseCase(
+        raw_repo=raw_repo,
+        events_repo=events_repo,
+        similarity_matcher=similarity_matcher,
+        config=config,
+        limit=limit
+    )
+    await rns.execute_raw_news()
