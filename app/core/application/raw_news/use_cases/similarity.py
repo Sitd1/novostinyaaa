@@ -15,14 +15,82 @@ from app.core.domain.raw_news.repositories import (
 )
 from app.core.application.raw_news.config import ClusteringConfig
 from app.core.domain.news.entities import NewsEvent
+from models import raw_news
+
+
+class RawNewsSimilarityUseCase:
+    def __init__(
+            self,
+            raw_repo: RawNewsRepository,
+            events_repo: NewsEventRepository,
+            similarity_matcher: SimilarityMatcherService,
+            config: ClusteringConfig | None = None,
+            limit: int | None = None,
+    ):
+        self.raw_repo = raw_repo
+        self.events_repo = events_repo
+        self.similarity_matcher = similarity_matcher
+        self.config = config if config is not None else ClusteringConfig()
+        self.limit = limit
+
+        self.executed_raw_news: list[RawNews] | None = None
+
+        self.updated_raw_news: list[RawNews] = []
+        self.new_events: list[NewsEvent] = []
+        self.updated_events: list[NewsEvent] = []
+
+    async def process_one_raw_news(self, raw: RawNews) -> RawNews:
+        """Ищем кандидаты-события - получить небольшой список событий,
+        с которыми можно сравнить текущую новость.
+        Смотрим ближайшие и косинусное расстояние отсеиваем по threshold также смотрим прочие фильтры
+        """
+
+        # совпадение по диапазону времени window_start, window_end и прочее по конфигу
+        event_candidates: list[NewsEvent] = self.events_repo.get_news_events_candidates(raw, self.config)
+
+        if event_candidates:
+            similarity_candidates: dict[int, int] = await self.similarity_matcher.get_similar_news_candidates(raw, self.config)
+        else:
+            similarity_candidates: dict[int, int] = dict()
+
+        # Создание нового события (нет подходящих events)
+        if len(similarity_candidates.keys()) == 0:
+            event = await self.events_repo.create_from_raw_news(raw)  # новое событие
+            self.new_events.append(event)
+        else:
+            chosen_event = await self.similarity_matcher.similaritychoose_event_for_raw_news(raw, similarity_candidates)
+            if chosen_event is None:
+                event = await self.events_repo.create_from_raw_news(raw)
+                self.new_events.append(event)
+            else:
+                event = await self.events_repo.attach_raw_to_existing_event(raw, chosen_event)
+                self.updated_events.append(event)
+
+        # обновляем только raw приписывая event_id в качестве fk
+        raw = raw.with_event_key(event.id)
+        self.updated_raw_news.append(raw)
+
+    async def execute_raw_news(self) -> list[RawNews]:
+        self.executed_raw_news: list[RawNews] = await self.raw_repo.list_pending_for_event_clustering(limit=self.limit)
+        return self.executed_raw_news
+
+    async def process_raw_news(self):
+        for raw_news in await self.execute_raw_news():
+            await self.process_one_raw_news(raw_news)
+
+    async def save_updates(self) -> None:
+        await self.events_repo.save_many(self.new_events)
+        await self.events_repo.update_many(self.updated_events)
+        await self.raw_repo.update_many(self.updated_raw_news)  # обновляем raw_repo
+
 
 
 async def cluster_pending_raw_news(
-    raw_repo: RawNewsRepository,
-    events_repo: NewsEventRepository,
-    similarity_matcher: SimilarityMatcherService,
-    config: ClusteringConfig | None = None,
-    limit: int | None = None,
+        raw_repo: RawNewsRepository,
+        events_repo: NewsEventRepository,
+        similarity_matcher: SimilarityMatcherService,
+        config: ClusteringConfig | None = None,
+        limit: int | None = None,
 ) -> None:
     """
     Use case:
