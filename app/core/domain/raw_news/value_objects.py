@@ -50,3 +50,12 @@ class RawNewsImportance:
 
     def __ge__(self, other: "RawNewsImportance") -> bool:
         return self.value >= other.value
+
+
+@dataclass(frozen=True)
+class RawNewsEmbedding:
+    value: int | None = None
+
+@dataclass(frozen=True)
+class EventKey:
+    value: int
