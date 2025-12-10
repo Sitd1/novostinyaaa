@@ -62,9 +62,11 @@ async def process_raw_news_batch_for_events(
         event_matcher: EventMatcherService,
         config: ClusteringConfig
 ) -> EventAggregationResult:
+
     updated_raw_news = []
     new_events = []
     updated_events = []
+
     for raw_news in raw_news_list:
         res = await process_single_raw_news_for_event(
             raw_news=raw_news,
