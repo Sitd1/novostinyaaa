@@ -27,7 +27,10 @@ async def create_events_from_raw_news(
 
     # 2. Обрабатываем и получаем результаты
     result = await process_raw_news_batch_for_events(
-        raw_news_list, events_repo, similarity_matcher, config
+        raw_news_list,
+        events_repo,
+        similarity_matcher,
+        config
     )
 
     # 3. Сохраняем результаты
