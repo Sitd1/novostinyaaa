@@ -5,14 +5,14 @@ from asyncpg.cluster import Cluster
 from app.core.application.raw_news.config import ClusteringConfig
 from app.core.domain.news.entities import NewsEvent
 from app.core.domain.raw_news.entities import RawNews
-from app.core.domain.raw_news.repositories import NewsEventRepository, EventMatcherService
+from app.core.domain.raw_news.repositories import NewsEventRepository, EventAgent, SimilarityMatcherService
 
 
 
 async def find_event_candidates_for_raw_news(
         raw_news: RawNews,
         events_repo: NewsEventRepository,
-        event_matcher: EventMatcherService,
+        similarity_matcher: SimilarityMatcherService,
         config: ClusteringConfig
 ) -> list[NewsEvent]:
     """Находит и ранжирует кандидатов событий для новости."""
@@ -22,9 +22,11 @@ async def find_event_candidates_for_raw_news(
 
     if not candidates:
         return []
+    if len(candidates) == 1:
+        return candidates
 
     # 2. Находим косинусную близость для каждого кандидата для нашего raw_news
-    similarity_scores: dict[NewsEvent, float] = await event_matcher.get_similar_news_candidates(
+    similarity_scores: dict[NewsEvent, float] = await similarity_matcher.get_similar_news_candidates(
         raw_news, candidates, config
     )
 

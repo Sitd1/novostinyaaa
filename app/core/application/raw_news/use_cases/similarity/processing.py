@@ -8,7 +8,7 @@ from app.core.domain.raw_news.repositories import (
     RawNewsRepository,
     NewsEventRepository,
     SimilarityMatcherService,
-    EventMatcherService
+    EventAgent
 )
 from app.core.application.raw_news.use_cases.similarity.candidates import find_event_candidates_for_raw_news
 from app.core.application.raw_news.dto.event_agg_result import EventAggregationResult
@@ -18,8 +18,9 @@ from app.core.application.raw_news.dto.raw_news_event_processing_result import R
 async def process_single_raw_news_for_event(
         raw_news: RawNews,
         events_repo: NewsEventRepository,
-        event_matcher: EventMatcherService,
-        config: ClusteringConfig) -> RawNewsEventProcessingResult:
+        similarity_matcher: SimilarityMatcherService,
+        event_agent: EventAgent,
+        config: ClusteringConfig) -> tuple[RawNews, NewsEvent]:
     """
     Обрабатывает одну сырую новость: находит подходящее событие или создаёт новое.
 
@@ -35,31 +36,22 @@ async def process_single_raw_news_for_event(
     candidates = await find_event_candidates_for_raw_news(
         raw_news=raw_news,
         events_repo=events_repo,
-        event_matcher=event_matcher,
+        similarity_matcher=similarity_matcher,
         config=config
     )
 
-    # 2. Определяем итоговый event
-    if not candidates:
-        # Создаем новый Event
-        event = await events_repo.create_from_raw_news(raw_news)
-        result_factory = RawNewsEventProcessingResult.for_new_event  # func
-    else:
-        # Выбираем существующий event
-        event = await event_matcher.choose_event_for_raw_news(raw_news=raw_news, candidates=candidates)
-        result_factory = RawNewsEventProcessingResult.for_existing_event  # func
+    # 2. Определяем итоговый even
+    event: NewsEvent = await event_agent.set_news_event(raw_news, events_repo, candidates)
+    raw_news = raw_news.with_event_key(event.id)
 
-    # 3. Присваиваем event_key к новости (унифицированная логика)
-    updated_raw_news = raw_news.with_event_key(event.id)
-
-    return result_factory(updated_raw_news, event)
+    return raw_news, event
 
 
 # Use case для обработки пачки новостей
 async def process_raw_news_batch_for_events(
         raw_news_list: list[RawNews],
         events_repo: NewsEventRepository,
-        event_matcher: EventMatcherService,
+        event_matcher: EventAgent,
         config: ClusteringConfig
 ) -> EventAggregationResult:
 
