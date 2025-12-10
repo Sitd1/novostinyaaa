@@ -1,15 +1,13 @@
 from __future__ import annotations
 
 from app.core.application.raw_news.config import ClusteringConfig
-from app.core.domain.news.entities import NewsEvent
-from app.core.domain.raw_news.entities import RawNews
 
 from app.core.domain.raw_news.repositories import (
     RawNewsRepository,
     NewsEventRepository,
     SimilarityMatcherService
 )
-from similarity import (
+from app.core.application.raw_news.use_cases.similarity import (
     load_pending_raw_news_for_clustering,
     process_raw_news_batch_for_events,
     persist_event_aggregation_results
