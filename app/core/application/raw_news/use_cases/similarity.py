@@ -125,3 +125,120 @@ async def create_events_from_raw_news(
         limit=limit
     )
     await rns.execute()
+
+
+# ------------------------------------------------------------------------------------------
+# ---
+# ------------------------------------------------------------------------------------------
+
+
+
+
+# 2. Use case для обработки одной новости
+async def process_single_raw_news_for_event(
+        raw_news: RawNews,
+        events_repo: NewsEventRepository,
+        similarity_matcher: SimilarityMatcherService,
+        config: ClusteringConfig):
+    """
+    Обрабатывает одну новость: находит подходящее событие или создаёт новое.
+    Возвращает: (обновлённая_новость, новое_событие, обновлённое_событие)
+    """
+    pass
+
+
+
+# Use case для поиска кандидатов событий
+async def find_event_candidates_for_raw_news(
+        raw_news: RawNews,
+        events_repo: NewsEventRepository,
+        similarity_matcher: SimilarityMatcherService,
+        config: ClusteringConfig
+) -> dict[NewsEvent, float]:
+    """Находит и ранжирует кандидатов событий для новости."""
+
+    # Получаем предварительных кандидатов
+    candidates = events_repo.get_news_events_candidates(raw_news, config)
+
+    if not candidates:
+        return {}
+
+    # Получаем оценки similarity для кандидатов
+    similarity_scores = await similarity_matcher.get_similar_news_candidates(
+        raw_news, config
+    )
+
+    return similarity_scores
+
+
+# Use case для создания нового события
+async def create_new_event_from_raw_news(
+        raw_news: RawNews,
+        events_repo: NewsEventRepository
+) -> tuple[RawNews, NewsEvent]:
+    """Создаёт новое событие из сырой новости."""
+
+    new_event = await events_repo.create_from_raw_news(raw_news)
+    updated_raw = raw_news.with_event_key(new_event.id)
+
+    return updated_raw, new_event
+
+
+# Use case для присоединения к существующему событию
+async def attach_raw_news_to_existing_event(
+        raw_news: RawNews,
+        target_event: NewsEvent,
+        events_repo: NewsEventRepository
+) -> tuple[RawNews, NewsEvent]:
+    """Присоединяет сырую новость к существующему событию."""
+
+    updated_event = await events_repo.attach_raw_to_existing_event(
+        raw_news, target_event
+    )
+    updated_raw = raw_news.with_event_key(updated_event.id)
+
+    return updated_raw, updated_event
+
+
+# Use case для выбора лучшего события
+async def choose_best_event_for_raw_news(
+        raw_news: RawNews,
+        similarity_candidates: dict[NewsEvent, float],
+        similarity_matcher: SimilarityMatcherService
+) -> NewsEvent | None:
+    """Выбирает лучшее событие на основе similarity scores."""
+
+    if not similarity_candidates:
+        return None
+
+    return await similarity_matcher.choose_event_for_raw_news(
+        raw_news, similarity_candidates
+    )
+
+
+async def create_events_from_raw_news(
+        raw_repo: RawNewsRepository,
+        events_repo: NewsEventRepository,
+        similarity_matcher: SimilarityMatcherService,
+        config: ClusteringConfig,
+        limit: int | None = None
+) -> EventAggregationResult:
+    """
+    Основной use case: координирует весь процесс агрегации.
+    """
+
+    # 1. Загружаем необработанные новости
+    raw_news_list = await load_pending_raw_news_for_clustering(raw_repo, limit)
+
+    if not raw_news_list:
+        return EventAggregationResult([], [], [])
+
+    # 2. Обрабатываем пакет
+    result = await process_raw_news_batch_for_events(
+        raw_news_list, events_repo, similarity_matcher, config
+    )
+
+    # 3. Сохраняем результаты
+    await persist_event_aggregation_results(result, raw_repo, events_repo)
+
+    return result
