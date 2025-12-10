@@ -15,7 +15,7 @@ from app.core.domain.raw_news.repositories import (
 )
 
 
-class RawNewsSimilarityUseCase:
+class EventAggregationUseCase:
     def __init__(
         self,
         raw_repo: RawNewsRepository,
@@ -117,7 +117,7 @@ async def create_events_from_raw_news(
         limit: int | None = None
 ) -> list[RawNews]:
 
-    rns = RawNewsSimilarityUseCase(
+    rns = EventAggregationUseCase(
         raw_repo=raw_repo,
         events_repo=events_repo,
         similarity_matcher=similarity_matcher,
