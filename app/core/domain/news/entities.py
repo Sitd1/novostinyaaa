@@ -48,6 +48,7 @@ class NewsEvent:
 
     event_time: EventTime  # когда это произошло / актуально
     user_interest_score: UserInterestScore | None = None  # интересы отдельного пользователя
+    is_updated: bool = False
 
     # ---------- Фабрики / конструкторы ----------
 
@@ -66,6 +67,7 @@ class NewsEvent:
         created_at: datetime | None = None,
         updated_at: datetime | None = None,
         user_interest_score: UserInterestScore | None = None,
+        is_updated: bool = False,
     ) -> "NewsEvent":
         """
         Удобная фабрика: принимает обычные Iterable, внутри приводит к tuple.
@@ -94,6 +96,7 @@ class NewsEvent:
             geography=geography,
             event_time=event_time,
             user_interest_score=user_interest_score,
+            is_updated=is_updated
         )
 
     # ---------- Методы поведения (immutability) ----------
@@ -190,4 +193,7 @@ class NewsEvent:
         """
         Обновить updated_at (например, при любом изменении).
         """
-        return replace(self, updated_at=at or datetime.now(timezone.utc))
+        return replace(
+            self,
+            updated_at=at or datetime.now(timezone.utc),
+            is_updated=True)
