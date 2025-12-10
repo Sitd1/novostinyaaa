@@ -12,7 +12,7 @@ from app.core.domain.raw_news.value_objects import (
 
 class RawNewsRepository(Protocol):
     async def get(self, id: RawNewsId) -> RawNews | None: ...
-    async def list_pending_for_processing(
+    async def list_pending_for_event_clustering(
             self,
             limit: int | None = None
     ) -> list[RawNews]: ...
