@@ -58,3 +58,8 @@ class NewsEventRepository(ABC):
         Used for deduplication logic (e.g. by title, time, content).
         """
         raise NotImplementedError
+
+    @abstractmethod
+    async def get_news_events_candidates(self) -> Iterable[NewsEvent]:
+        """Return all news events candidates."""
+        raise NotImplementedError

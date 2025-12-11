@@ -40,3 +40,11 @@ class SimilarityMatcherService(Protocol):
             event_repo: NewsEventRepository,
             config: ClusteringConfig
     ) -> NewsEvent: ...
+
+    async def get_similar_news_candidates(
+            self,
+            raw_news: RawNews,
+            candidates: list[NewsEvent],
+            config: ClusteringConfig
+    ) -> dict[NewsEvent, float]:
+        ...
