@@ -1,8 +1,10 @@
 TG_CHANNELS: list[str] = [
-    "lentachold", # есть подписка
-    "economica", # нужно подписаться
+    "lentachold",
+    "economica",
     "rian_ru",
     "meduzalive",
     "ssigny"
-    # добавишь свои
+    # добавить свои
 ]
+
+# tbd: вынести в отдельную сущность source и управлять через неё
