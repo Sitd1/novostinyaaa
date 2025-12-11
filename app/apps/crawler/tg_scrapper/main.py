@@ -1,11 +1,11 @@
 # Скрипт, который раз в N минут тянет новости из TG и кладёт в БД →
-# app/apps/scraper/tg_scrapper/main.py
+# app/apps/crawler/tg_scrapper/main.py
 # (внутри: создаём реализации портов из infra, вызываем use-case ingest_raw_news).
 
 
 # from app.infrastructure.db.session import get_session
 # from app.infrastructure.db.repositories.raw_news import SqlAlchemyRawNewsRepository
-# from app.infrastructure.telegram.raw_news_source import TelegramChannelRawNewsSource
+# from app.infrastructure.crawler.raw_news_source import TelegramChannelRawNewsSource
 # from app.core.application.raw_news.use_cases.ingest import ingest_raw_news
 #
 # async def main():
