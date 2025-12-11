@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from app.core.application.raw_news.config import ClusteringConfig
+from app.core.application.raw_news.dto.find_similarity_raw_news_items import ClusteringConfig
 from app.core.domain.raw_news.entities import RawNews
 from app.core.domain.raw_news.repositories import (
     RawNewsRepository

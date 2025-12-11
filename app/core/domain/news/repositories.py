@@ -63,3 +63,13 @@ class NewsEventRepository(ABC):
     async def get_news_events_candidates(self) -> Iterable[NewsEvent]:
         """Return all news events candidates."""
         raise NotImplementedError
+
+    @abstractmethod
+    async def save_many(self, events: Iterable[NewsEvent]) -> None:
+        """Store many events."""
+        raise NotImplementedError
+
+    @abstractmethod
+    async def update_many(self, events: Iterable[NewsEvent]) -> None:
+        """Store many events."""
+        raise NotImplementedError
