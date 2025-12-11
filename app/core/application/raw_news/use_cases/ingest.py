@@ -43,7 +43,7 @@ async def ingest_new_raw_news(
 
     # 2. Превратили в доменные сущности
     raw_news_list: list[RawNews] = [
-        factory.create_from_external_item(dto) for dto in raw_items
+        factory.create_from_external_item(raw_news_) for raw_news_ in raw_items
     ]
     created_count = len(raw_news_list)
 
