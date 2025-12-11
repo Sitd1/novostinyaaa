@@ -17,5 +17,5 @@ class TgBotConfig(ConfigBase):
 tg_bot_config = TgBotConfig()
 
 
-if __name__ == "__main__":
-    print(tg_bot_config)
+# if __name__ == "__main__":
+#     print(tg_bot_config)

@@ -36,6 +36,5 @@ class LLMConfig(ConfigBase):
 
 llm_config = LLMConfig()
 
-if __name__ == "__main__":
-    print(llm_config)
-
+# if __name__ == "__main__":
+#     print(llm_config)
