@@ -6,12 +6,12 @@ from app.core.domain.raw_news.entities import RawNews
 
 from app.core.domain.raw_news.repositories import (
     RawNewsRepository,
-    NewsEventRepository,
-    SimilarityMatcherService,
     EventAgent
 )
+from app.core.domain.news.repositories import NewsEventRepository
 from app.core.application.raw_news.use_cases.similarity.candidates import find_event_candidates_for_raw_news
 from app.core.application.raw_news.dto.event_agg_result import EventAggregationResult
+from app.core.application.raw_news.ports.similarity import SimilarityMatcherService
 from app.core.application.raw_news.dto.raw_news_event_processing_result import RawNewsEventProcessingResult
 
 # Use case для обработки одной новости (Вот эту часть можно вывести в сторону агента)
@@ -19,7 +19,6 @@ async def process_single_raw_news_for_event(
         raw_news: RawNews,
         events_repo: NewsEventRepository,
         similarity_matcher: SimilarityMatcherService,
-        event_agent: EventAgent,
         config: ClusteringConfig) -> tuple[RawNews, NewsEvent]:
     """
     Обрабатывает одну сырую новость: находит подходящее событие или создаёт новое.
@@ -40,8 +39,8 @@ async def process_single_raw_news_for_event(
         config=config
     )
 
-    # 2. Определяем итоговый even
-    event: NewsEvent = await event_agent.set_news_event(raw_news, events_repo, candidates)
+    # 2. Определяем итоговый event (может быть как новая или обновленная новость)
+    event: NewsEvent = await similarity_matcher.set_news_event(raw_news, events_repo, candidates)
     raw_news = raw_news.with_event_key(event.id)
 
     return raw_news, event
@@ -51,7 +50,7 @@ async def process_single_raw_news_for_event(
 async def process_raw_news_batch_for_events(
         raw_news_list: list[RawNews],
         events_repo: NewsEventRepository,
-        event_matcher: EventAgent,
+        similarity_matcher: SimilarityMatcherService,
         config: ClusteringConfig
 ) -> EventAggregationResult:
 
@@ -63,7 +62,8 @@ async def process_raw_news_batch_for_events(
         res = await process_single_raw_news_for_event(
             raw_news=raw_news,
             events_repo=events_repo,
-            event_matcher=event_matcher,
+            similarity_matcher=similarity_matcher,
+
             config=config
         )
         updated_raw_news.append(res.updated_raw_news)
