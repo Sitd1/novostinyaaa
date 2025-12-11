@@ -54,18 +54,18 @@ async def process_raw_news_batch_for_events(
     updated_events = []
 
     for raw_news in raw_news_list:
-        res = await process_single_raw_news_for_event(
+        raw_news_with_event_fk, event_processed = await process_single_raw_news_for_event(
             raw_news=raw_news,
             events_repo=events_repo,
             similarity_matcher=similarity_matcher,
 
             config=config
         )
-        updated_raw_news.append(res)
-        if res.is_new_event:
-            new_events.append(res)
+        updated_raw_news.append(raw_news_with_event_fk)
+        if event_processed.is_updated:
+            updated_events.append(event_processed)
         else:
-            updated_events.append(res)
+            new_events.append(event_processed)
 
     return EventAggregationResult(
         updated_raw_news=updated_raw_news,
