@@ -10,7 +10,7 @@ class SourceId:
 
 
 class SourceType(Enum):
-    TELEGRAM = "crawler"
+    TELEGRAM = "telegram"
     # RSS = "rss"
     # API = "api"
     # OTHER = "other"
