@@ -3,6 +3,9 @@ from typing import Protocol
 # dto
 from app.core.application.raw_news.dto.find_similarity_raw_news_items import SimilarRawNews, RawNewsCluster
 from app.core.domain.raw_news.entities import RawNews
+from app.core.domain.news.repositories import NewsEventRepository
+from config import ClusteringConfig
+from entities import NewsEvent
 
 
 # --- similarity ---
@@ -28,3 +31,12 @@ class RawNewsClusterRepository(Protocol):
 
     async def save_cluster(self, cluster: RawNewsCluster) -> None:
         ...
+
+
+class SimilarityMatcherService(Protocol):
+    async def match_raw_news_event(
+            self, raw_news: RawNews,
+            candidates: list[NewsEvent],
+            event_repo: NewsEventRepository,
+            config: ClusteringConfig
+    ) -> NewsEvent: ...
