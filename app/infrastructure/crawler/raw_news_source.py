@@ -5,7 +5,7 @@ from telethon.tl.types import Message
 from app.core.application.raw_news.dto.external_raw_news_item import ExternalRawNewsItem
 from app.core.application.raw_news.ports.ingest import ExternalRawNewsSource
 from app.infrastructure.database.repositories.tg_raw_news import TgRawNewsRepository
-from app.apps.scraper.tg_scrapper.tg_channels import TG_CHANNELS
+from app.apps.crawler.tg_scrapper.tg_channels import TG_CHANNELS
 
 
 class TelegramRawNewsSource(ExternalRawNewsSource):
