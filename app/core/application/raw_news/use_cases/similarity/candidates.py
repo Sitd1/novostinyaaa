@@ -15,7 +15,7 @@ async def find_event_candidates_for_raw_news(
 ) -> list[NewsEvent]:
     """Находит и ранжирует кандидатов событий для новости."""
 
-    # 1. Загружаем новости, ожидающие кластеризации (присвоение event для raw_news)
+    # 1. Загружаем NewsEvent по каким-то правилам (тэги?) (присвоение event для raw_news)
     candidates: list[NewsEvent] = events_repo.get_news_events_candidates()
 
     if not candidates:
