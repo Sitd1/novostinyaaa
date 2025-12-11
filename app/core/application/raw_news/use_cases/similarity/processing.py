@@ -34,8 +34,10 @@ async def process_single_raw_news_for_event(
         config=config
     )
 
-    # 2. Определяем итоговый event (может быть как новая или обновленная новость)
-    event: NewsEvent = await similarity_matcher.match_raw_news_event(raw_news, candidates, events_repo, config)
+    # 2. Определяем итоговый event скорее всего через агента (может быть как новая или обновленная новость)
+    event: NewsEvent = await similarity_matcher.match_raw_news_event(
+        raw_news, candidates, events_repo, config
+    )
     raw_news = raw_news.with_event_key(event.id)
 
     return raw_news, event
