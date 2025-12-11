@@ -1,23 +1,20 @@
 from __future__ import annotations
 
-from app.core.application.raw_news.config import ClusteringConfig
-from app.core.domain.news.entities import NewsEvent
-from app.core.domain.raw_news.entities import RawNews
-from app.core.domain.raw_news.repositories import (
-    RawNewsRepository,
-    NewsEventRepository,
-    SimilarityMatcherService,
-    EventMatcherService
-)
-from app.core.application.raw_news.use_cases.similarity.candidates import find_event_candidates_for_raw_news
 from app.core.application.raw_news.dto.event_agg_result import EventAggregationResult
+from app.core.application.raw_news.ports.similarity import SimilarityMatcherService
+from app.core.application.raw_news.use_cases.similarity.candidates import find_event_candidates_for_raw_news
+from app.core.domain.news.entities import NewsEvent
+from app.core.domain.news.repositories import NewsEventRepository
+from app.core.domain.raw_news.entities import RawNews
+from app.core.application.raw_news.dto.find_similarity_raw_news_items import ClusteringConfig
 
-# Use case для обработки одной новости
+
+# Use case для обработки одной новости (Вот эту часть можно вывести в сторону агента)
 async def process_single_raw_news_for_event(
         raw_news: RawNews,
         events_repo: NewsEventRepository,
-        event_matcher: EventMatcherService,
-        config: ClusteringConfig):
+        similarity_matcher: SimilarityMatcherService,
+        config: ClusteringConfig) -> tuple[RawNews, NewsEvent]:
     """
     Обрабатывает одну сырую новость: находит подходящее событие или создаёт новое.
 
@@ -33,45 +30,47 @@ async def process_single_raw_news_for_event(
     candidates = await find_event_candidates_for_raw_news(
         raw_news=raw_news,
         events_repo=events_repo,
-        event_matcher=event_matcher,
+        similarity_matcher=similarity_matcher,
         config=config
     )
 
-    if not candidates:
-        new_event = events_repo.new_event(raw_news=raw_news)
-        updated_raw = raw_news.with_event_key(new_event.event_key)
-        return updated_raw, new_event
+    # 2. Определяем итоговый event скорее всего через агента (может быть как новая или обновленная новость)
+    event: NewsEvent = await similarity_matcher.match_raw_news_event(
+        raw_news, candidates, events_repo, config
+    )
+    raw_news = raw_news.with_event_key(event.id)
 
-    # 2. Пропускаем через "умный оценщик" наших кандидатов (в любом случае будет updated)
-    chosen_event = await event_matcher.choose_event_for_raw_news(raw_news=raw_news, candidates=candidates)
-
-    return ...
-
-
-
-
-
-
-
-
-
-
+    return raw_news, event
 
 
 # Use case для обработки пачки новостей
 async def process_raw_news_batch_for_events(
         raw_news_list: list[RawNews],
         events_repo: NewsEventRepository,
-        event_matcher: EventMatcherService,
+        similarity_matcher: SimilarityMatcherService,
         config: ClusteringConfig
-):
-    processed_results = []
+) -> EventAggregationResult:
+
+    updated_raw_news = []
+    new_events = []
+    updated_events = []
+
     for raw_news in raw_news_list:
-        res = process_single_raw_news_for_event(
+        raw_news_with_event_fk, event_processed = await process_single_raw_news_for_event(
             raw_news=raw_news,
             events_repo=events_repo,
-            event_matcher=event_matcher,
+            similarity_matcher=similarity_matcher,
+
             config=config
         )
-        processed_results.append(res)
-    return processed_results
+        updated_raw_news.append(raw_news_with_event_fk)
+        if event_processed.is_updated:
+            updated_events.append(event_processed)
+        else:
+            new_events.append(event_processed)
+
+    return EventAggregationResult(
+        updated_raw_news=updated_raw_news,
+        new_events=new_events,
+        updated_events=updated_events
+    )

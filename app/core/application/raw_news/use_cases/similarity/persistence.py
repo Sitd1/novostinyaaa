@@ -1,11 +1,8 @@
 from __future__ import annotations
 
 
-from app.core.domain.raw_news.repositories import (
-    RawNewsRepository,
-    NewsEventRepository,
-    SimilarityMatcherService
-)
+from app.core.domain.raw_news.repositories import RawNewsRepository
+from app.core.domain.news.repositories import NewsEventRepository
 from app.core.application.raw_news.dto.event_agg_result import EventAggregationResult
 
 

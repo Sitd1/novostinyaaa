@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from asyncio import Event
 from typing import Protocol, Iterable
 
 from app.core.domain.raw_news.entities import RawNews
@@ -7,7 +8,7 @@ from app.core.domain.raw_news.value_objects import (
     RawNewsId,
     RawNewsImportance, Tag,
 )
-
+from entities import NewsEvent
 
 
 class RawNewsRepository(Protocol):
@@ -24,3 +25,8 @@ class RawNewsRepository(Protocol):
     ) -> list[RawNews]: ...
     async def save_many(self, items: Iterable[RawNews]) -> None: ...
     async def update_many(self, items: Iterable[RawNews]) -> None: ...
+
+
+class EventAgent(Protocol):
+    async def set_news_event(self, raw_news, events_repo, candidates) -> NewsEvent: ...
+

@@ -1,17 +1,18 @@
 from __future__ import annotations
 
-from app.core.application.raw_news.config import ClusteringConfig
-
+from app.core.application.raw_news.dto.find_similarity_raw_news_items import ClusteringConfig
+from app.core.domain.raw_news.entities import RawNews
 from app.core.domain.raw_news.repositories import (
-    RawNewsRepository,
-    NewsEventRepository,
-    SimilarityMatcherService
+    RawNewsRepository
 )
+from app.core.domain.news.repositories import NewsEventRepository
 from app.core.application.raw_news.use_cases.similarity import (
     load_pending_raw_news_for_clustering,
     process_raw_news_batch_for_events,
     persist_event_aggregation_results
 )
+from app.core.application.raw_news.ports.similarity import SimilarityMatcherService
+from app.core.application.raw_news.dto.event_agg_result import EventAggregationResult
 
 
 # главный оркестратор
@@ -22,11 +23,12 @@ async def create_events_from_raw_news(
         config: ClusteringConfig,
         batch_size: int = 50
 ):
+
     # 1. Загружаем необработанные новости
-    raw_news_list = await load_pending_raw_news_for_clustering(raw_news_repo, batch_size)
+    raw_news_list: list[RawNews] = await load_pending_raw_news_for_clustering(raw_news_repo, batch_size)
 
     # 2. Обрабатываем и получаем результаты
-    result = await process_raw_news_batch_for_events(
+    result: EventAggregationResult = await process_raw_news_batch_for_events(
         raw_news_list,
         events_repo,
         similarity_matcher,
