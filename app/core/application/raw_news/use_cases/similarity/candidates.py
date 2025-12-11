@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-from asyncpg.cluster import Cluster
-
-from app.core.application.raw_news.config import ClusteringConfig
 from app.core.domain.news.entities import NewsEvent
 from app.core.domain.raw_news.entities import RawNews
-from app.core.domain.raw_news.repositories import NewsEventRepository, EventAgent, SimilarityMatcherService
-
+from app.core.domain.news.repositories import NewsEventRepository
+from app.core.application.raw_news.ports.similarity import SimilarityMatcherService
+from app.core.application.raw_news.dto.find_similarity_raw_news_items import ClusteringConfig
 
 
 async def find_event_candidates_for_raw_news(
@@ -18,7 +16,7 @@ async def find_event_candidates_for_raw_news(
     """Находит и ранжирует кандидатов событий для новости."""
 
     # 1. Загружаем новости, ожидающие кластеризации (присвоение event для raw_news)
-    candidates: list[NewsEvent] = events_repo.get_news_events_candidates(raw_news, config)
+    candidates: list[NewsEvent] = events_repo.get_news_events_candidates()
 
     if not candidates:
         return []
