@@ -8,7 +8,7 @@ from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 # Добавляем корневую директорию проекта в PYTHONPATH
-project_root = Path(__file__).parent
+project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 from app.infrastructure.crawler.tg_crawler.factory import create_telegram_raw_news_source
