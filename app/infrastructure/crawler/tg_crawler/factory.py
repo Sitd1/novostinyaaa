@@ -1,9 +1,8 @@
-from telethon import TelegramClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.config import crawler_config as config
 from app.infrastructure.crawler.tg_crawler.raw_news_source import TelegramRawNewsSource
 from app.infrastructure.database.repositories.tg_raw_news import TgRawNewsRepository
+from app.infrastructure.crawler.tg_crawler.client import get_telegram_client
 
 
 async def create_telegram_raw_news_source(session: AsyncSession) -> TelegramRawNewsSource:
@@ -11,11 +10,7 @@ async def create_telegram_raw_news_source(session: AsyncSession) -> TelegramRawN
     Фабрика для создания TelegramRawNewsSource с зависимостями.
     """
     # Создать Telegram клиент
-    client = TelegramClient(
-        config.telegram.session_name,
-        int(config.telegram.api_id.get_secret_value()),
-        config.telegram.api_hash.get_secret_value(),
-    )
+    client = get_telegram_client()
 
     # Создать репозиторий
     repo = TgRawNewsRepository(session)
@@ -26,3 +21,8 @@ async def create_telegram_raw_news_source(session: AsyncSession) -> TelegramRawN
         repo=repo,
         limit_per_channel=50  # можно вынести в конфиг
     )
+
+
+if __name__ == "__main__":
+    from app.infrastructure.database.session import AsyncSession
+    source = create_telegram_raw_news_source(AsyncSession)

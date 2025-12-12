@@ -3,7 +3,7 @@ from typing import Any, Iterable
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.models.raw_news import RawNewsORM
+from app.infrastructure.database.models.raw_news import RawNewsORM
 
 
 class TgRawNewsRepository:
@@ -61,7 +61,7 @@ class TgRawNewsRepository:
         Иначе — None.
         """
         stmt = (
-            select(func.max(RawNewsORM.message_id))
+            select(func.max(RawNewsORM.external_id))
             .where(RawNewsORM.channel_username == channel_username)
         )
         result = await self.session.execute(stmt)

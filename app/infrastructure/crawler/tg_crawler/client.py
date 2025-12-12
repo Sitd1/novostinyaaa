@@ -1,8 +1,8 @@
 # agents_service/telegram_raw/client.py
 from telethon import TelegramClient
-from config.settings import config
+from app.config import crawler_config
 
-tg_scr_config = config.telegram
+
 
 def get_telegram_client() -> TelegramClient:
     """
@@ -10,7 +10,7 @@ def get_telegram_client() -> TelegramClient:
     Сессия будет храниться в файле SESSION_NAME.session
     """
     return TelegramClient(
-        tg_scr_config.session_name,
-        int(tg_scr_config.api_id.get_secret_value()),
-        tg_scr_config.api_hash.get_secret_value(),
+        crawler_config.telegram_config.session_name,
+        int(crawler_config.telegram_config.api_id.get_secret_value()),
+        crawler_config.telegram_config.api_hash.get_secret_value(),
     )
