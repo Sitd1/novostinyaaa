@@ -1,7 +1,6 @@
-from datetime import timezone
-
 from __future__ import annotations
 
+from datetime import timezone
 from dataclasses import dataclass, replace
 from datetime import datetime
 from typing import Iterable
