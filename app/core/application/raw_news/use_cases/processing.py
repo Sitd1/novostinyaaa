@@ -33,12 +33,13 @@ async def enrich_raw_news(
     for item in items:
         result = await enrichment.enrich(item)
 
-        item: RawNews = (
-            item
-            .with_tags(result.tags)
-            .with_summary(result.summary)
-            .with_importance(result.importance)
-            .with_embedding(result.embedding)
+        # Оптимизированное обновление - один объект вместо цепочки .with_*()
+        item: RawNews = RawNews.create_updated(
+            item,
+            tags=result.tags,
+            summary=result.summary,
+            importance=result.importance,
+            embedding=result.embedding,
         )
         enriched_items.append(item)
 
