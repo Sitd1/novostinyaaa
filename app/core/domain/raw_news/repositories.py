@@ -8,7 +8,7 @@ from app.core.domain.raw_news.value_objects import (
     RawNewsId,
     RawNewsImportance, Tag,
 )
-from entities import NewsEvent
+from app.core.domain.news.entities import NewsEvent
 
 
 class RawNewsRepository(Protocol):
@@ -29,4 +29,3 @@ class RawNewsRepository(Protocol):
 
 class EventAgent(Protocol):
     async def set_news_event(self, raw_news, events_repo, candidates) -> NewsEvent: ...
-
