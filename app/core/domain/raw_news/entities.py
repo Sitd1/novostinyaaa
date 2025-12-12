@@ -1,4 +1,5 @@
 from dataclasses import dataclass, replace
+from typing import Any
 
 from app.core.domain.raw_news.value_objects import (
     RawNewsId,
@@ -45,7 +46,7 @@ class RawNews:
                 f"RawNews: fetched_at {self.fetched_at} < published_at {self.published_at}"
             )
 
-    # Доменные операции постобработки:
+    # Доменные операции постобработки (оптимизированные):
 
     def with_tags(self, tags: tuple[Tag, ...]) -> "RawNews":
         return replace(self, tags=tags)
@@ -61,3 +62,105 @@ class RawNews:
 
     def with_event_key(self, event_key: EventKey) -> "RawNews":
         return replace(self, event_fk=event_key)
+
+    # Оптимизированный метод для batch обновления (избегает цепочки .with_*())
+    @classmethod
+    def create_updated(
+        cls,
+        original: "RawNews",
+        *,
+        tags: tuple[Tag, ...] | None = None,
+        summary: RawNewsSummary | None = None,
+        importance: RawNewsImportance | None = None,
+        embedding: RawNewsEmbedding | None = None,
+        event_key: EventKey | None = None,
+    ) -> "RawNews":
+        """
+        Оптимизированная версия для множественных обновлений.
+        Создает только один новый объект вместо цепочки.
+        """
+        updates = {}
+        if tags is not None:
+            updates['tags'] = tags
+        if summary is not None:
+            updates['summary'] = summary
+        if importance is not None:
+            updates['importance'] = importance
+        if embedding is not None:
+            updates['embedding'] = embedding
+        if event_key is not None:
+            updates['event_fk'] = event_key
+
+        return replace(original, **updates)
+
+
+class RawNewsBuilder:
+    """
+    Builder для создания обновленных RawNews объектов.
+    Полезен когда нужно условно обновлять поля или комбинировать обновления.
+
+    Примеры использования:
+
+    # Вместо цепочки .with_*()
+    # news = news.with_tags(tags).with_summary(summary).with_importance(imp)
+
+    # Используем Builder:
+    builder = RawNewsBuilder(news)
+    updated_news = (builder
+        .with_tags(tags)
+        .with_summary(summary)
+        .with_importance(imp)
+        .build())
+
+    # Или условные обновления:
+    updated_news = (RawNewsBuilder(news)
+        .with_tags_if_present(result.tags)
+        .with_summary_if_present(result.summary)
+        .build())
+    """
+
+    def __init__(self, original: RawNews):
+        self._original = original
+        self._updates: dict[str, Any] = {}
+
+    def with_tags(self, tags: tuple[Tag, ...]) -> "RawNewsBuilder":
+        self._updates['tags'] = tags
+        return self
+
+    def with_summary(self, summary: RawNewsSummary) -> "RawNewsBuilder":
+        self._updates['summary'] = summary
+        return self
+
+    def with_importance(self, importance: RawNewsImportance) -> "RawNewsBuilder":
+        self._updates['importance'] = importance
+        return self
+
+    def with_embedding(self, embedding: RawNewsEmbedding) -> "RawNewsBuilder":
+        self._updates['embedding'] = embedding
+        return self
+
+    def with_event_key(self, event_key: EventKey) -> "RawNewsBuilder":
+        self._updates['event_fk'] = event_key
+        return self
+
+    def build(self) -> RawNews:
+        """Создает новый объект с накопленными обновлениями."""
+        return replace(self._original, **self._updates)
+
+    def clear(self) -> "RawNewsBuilder":
+        """Очищает накопленные обновления."""
+        self._updates.clear()
+        return self
+
+    # Удобные методы для условных обновлений
+    def with_tags_if_present(self, tags: tuple[Tag, ...] | None) -> "RawNewsBuilder":
+        """Обновляет tags только если они не None."""
+        if tags is not None:
+            self._updates['tags'] = tags
+        return self
+
+    def with_summary_if_present(self, summary: RawNewsSummary | None) -> "RawNewsBuilder":
+        """Обновляет summary только если он не None."""
+        if summary is not None:
+            self._updates['summary'] = summary
+        return self
