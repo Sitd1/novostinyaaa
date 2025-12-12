@@ -1,11 +1,16 @@
 from decimal import Decimal
 
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import DateTime, Integer, String, Text, UniqueConstraint, ForeignKey, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.infrastructure.database.models.base import Base
+from app.infrastructure.database.models.source import NewsSourceORM
+
+if TYPE_CHECKING:
+    from app.infrastructure.database.models.news import NewsEventORM
 
 
 
@@ -47,7 +52,7 @@ class RawNewsORM(Base):
     event_id: Mapped[int | None] = mapped_column(ForeignKey("news_events.id"), index=True, nullable=True)
 
     # ORM связь
-    source: Mapped["SourceORM"] = relationship(back_populates="raw_news")
+    source: Mapped["NewsSourceORM"] = relationship(back_populates="raw_news")
     event: Mapped["NewsEventORM"] = relationship(back_populates="raw_news")
 
     __table_args__ = (
