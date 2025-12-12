@@ -4,6 +4,7 @@ from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.infrastructure.database.models.raw_news import RawNewsORM
+from app.infrastructure.database.models.source import NewsSourceORM
 
 
 class TgRawNewsRepository:
@@ -62,7 +63,8 @@ class TgRawNewsRepository:
         """
         stmt = (
             select(func.max(RawNewsORM.external_id))
-            .where(RawNewsORM.channel_username == channel_username)
+            .join(RawNewsORM.source)
+            .where(NewsSourceORM.name == channel_username)
         )
         result = await self.session.execute(stmt)
         last_id: int | None = result.scalar_one_or_none()
