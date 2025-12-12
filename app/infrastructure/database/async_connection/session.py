@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
-from database.async_connection.engine import engine as async_engine
+from app.infrastructure.database.async_connection.engine import engine as async_engine
 
 # Фабрика сессий
 async_session_maker = async_sessionmaker(
