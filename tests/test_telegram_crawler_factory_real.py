@@ -68,6 +68,16 @@ async def test_create_telegram_raw_news_source_real():
         print(f"   limit_per_channel: {result.limit_per_channel}")
         print(f"   Количество каналов: {len(result.channels)}")
         print(f"   Каналы: {result.channels}")
+        print(f"   Репозиторий: {type(result.repo)}")
+        print(f"   Репозиторий сессия: {type(result.repo.session) if hasattr(result.repo, 'session') else 'N/A'}")
+
+        # Показываем информацию о клиенте
+        print(f"   Клиент API ID: {getattr(result.client, 'api_id', 'N/A')}")
+        print(f"   Клиент session: {getattr(result.client, 'session', 'N/A')}")
+        print(f"   Клиент подключен: {getattr(result.client, 'is_connected', lambda: 'N/A')()}")
+
+        # Показываем методы объекта
+        print(f"   Методы объекта: {[method for method in dir(result) if not method.startswith('_')]}")
 
         return True
 
