@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     Integer,
@@ -12,6 +13,10 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.infrastructure.database.models.base import Base
+
+if TYPE_CHECKING:
+    from app.infrastructure.database.models.news_event_raw_news_mapper import NewsEventRawNewsORM
+    from app.infrastructure.database.models.news_event_tags_mapper import NewsEventTagORM
 
 
 class NewsEventORM(Base):
@@ -49,6 +54,18 @@ class NewsEventORM(Base):
 
     # связь 1 → N
     raw_news: Mapped[list["RawNewsORM"]] = relationship(
+        back_populates="event",
+        cascade="all, delete-orphan",
+    )
+
+    # Many-to-many relationship through mapper table
+    raw_news_links: Mapped[list["NewsEventRawNewsORM"]] = relationship(
+        back_populates="event",
+        cascade="all, delete-orphan",
+    )
+
+    # Tags relationship
+    tags: Mapped[list["NewsEventTagORM"]] = relationship(
         back_populates="event",
         cascade="all, delete-orphan",
     )

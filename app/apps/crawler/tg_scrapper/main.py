@@ -1,19 +1,21 @@
-from app.infrastructure.database.async_connection.session import get_session
-from app.infrastructure.crawler.tg_crawler.factory import create_telegram_raw_news_source
+from app.infrastructure.database.session import get_async_session
+from app.infrastructure.crawler.tg_crawler.telegram_raw_news_source import create_telegram_raw_news_source
 from app.core.application.raw_news.use_cases.ingest import ingest_new_raw_news
+from app.infrastructure.database.repositories.tg_raw_news import TgRawNewsRepository
+
 
 
 # + фабрика RawNewsFactory и репозиторий RawNewsRepository
 
 
 async def main():
-    async with get_session() as session:
+    async with get_async_session() as session:
         # Создать источник данных из Telegram
         source = await create_telegram_raw_news_source(session)  # штука, которая работает через Telethon
 
         # Создать фабрику и репозиторий (нужно реализовать)
         factory = ...  # просто штука, которая преобразовывает сообщения из телеграм в доменные сущности
-        repo = ...  # RawNewsRepository просто реализовать боевой
+        repo = TgRawNewsRepository(session) # RawNewsRepository просто реализовать боевой
 
         # Запустить клиента и выполнить сбор
         async with source.client:  # клиент должен быть запущен
