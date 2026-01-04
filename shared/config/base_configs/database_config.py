@@ -1,8 +1,8 @@
 from dotenv import load_dotenv
 from pydantic_settings import SettingsConfigDict
-from pydantic import SecretStr, Field
+from pydantic import SecretStr
 
-from app.config.base_configs.base import ConfigBase
+from base_configs.base import ConfigBase
 
 
 load_dotenv()

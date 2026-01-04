@@ -1,6 +1,6 @@
 # agents_service/telegram_raw/client.py
 from telethon import TelegramClient
-from config import config
+from shared.config import config
 
 tg_scr_config = config.telegram
 
