@@ -3,7 +3,7 @@ import asyncio
 from typing import Any
 
 from database.async_connection.session import get_session
-from database import TgRawNewsRepository
+from shared.database.repositories.raw_news import RawNewsRepository  # ToDo - создать репозиторий
 from apps.crawler.services.tg_crawler.client import get_telegram_client
 from apps.crawler.services.tg_crawler.tg_channels import TG_CHANNELS
 
@@ -21,7 +21,7 @@ async def collect_last_messages(limit_per_channel: int = 50) -> None:
 
     async with client:
         async with get_session() as session:
-            repo = TgRawNewsRepository(session)
+            repo = RawNewsRepository(session)
 
             total_saved = 0
 

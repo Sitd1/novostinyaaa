@@ -1,11 +1,13 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 
-from shared.config.base_configs.database_config import database_config
+from config import Config
+
+config = Config()
 
 
 
 # URL подключения к БД
-DATABASE_URL = database_config.db.url_asyncpg
+DATABASE_URL = config.db.url_asyncpg
 
 # Создание асинхронного движка
 engine: AsyncEngine = create_async_engine(
