@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 from pydantic_settings import SettingsConfigDict
 from pydantic import SecretStr
 
-from base_configs.base import ConfigBase
+from shared.config.base_configs.base import ConfigBase
 
 
 load_dotenv()

@@ -1,12 +1,11 @@
 # agents_service/telegram_raw/probe_collect.py
-
 import asyncio
 from typing import Any
 
 from database.async_connection.session import get_session
 from database import TgRawNewsRepository
-from tg_scrapper.client import get_telegram_client
-from tg_scrapper.tg_channels import TG_CHANNELS
+from apps.crawler.services.tg_crawler.client import get_telegram_client
+from apps.crawler.services.tg_crawler.tg_channels import TG_CHANNELS
 
 
 async def collect_last_messages(limit_per_channel: int = 50) -> None:
@@ -27,7 +26,7 @@ async def collect_last_messages(limit_per_channel: int = 50) -> None:
             total_saved = 0
 
             for channel in TG_CHANNELS:
-                print(f"\nЧитаю канал: {channel}")
+                print(f"\nЧитаю канал: {channel}") # ToDo переделать под логгер
 
                 # 1. узнаём максимальный message_id для этого канала в БД
                 last_id = await repo.get_last_message_id(channel)
