@@ -1,3 +1,5 @@
+# raw_news_source.py
+
 from typing import Iterable, AsyncIterator
 from telethon import TelegramClient
 from telethon.tl.types import Message
@@ -11,7 +13,6 @@ from app.apps.crawler.tg_scrapper.tg_channels import TG_CHANNELS
 class TelegramRawNewsSource(ExternalRawNewsSource):
     """
     Адаптер для получения сырых новостей из Telegram каналов.
-
     Реализует порт ExternalRawNewsSource для архитектуры Clean Architecture.
     """
 
@@ -20,14 +21,28 @@ class TelegramRawNewsSource(ExternalRawNewsSource):
             client: TelegramClient,
             repo: TgRawNewsRepository,
             channels: list[str] = None,
-            limit_per_channel: int = 50  # ToDo: вынести в конфиг
+            limit_per_channel: int = 50
     ):
         self.client = client
         self.repo = repo
         self.channels = channels or TG_CHANNELS
         self.limit_per_channel = limit_per_channel
+        self._client_started = False
 
-    async def fetch_new_raw_items(self) -> Iterable[ExternalRawNewsItem]:
+    async def __aenter__(self):
+        """Запуск клиента при входе в контекстный менеджер"""
+        if not self._client_started:
+            await self.client.start()
+            self._client_started = True
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        """Остановка клиента при выходе из контекстного менеджера"""
+        if self._client_started:
+            await self.client.disconnect()
+            self._client_started = False
+
+    async def fetch_new_raw_items(self) -> AsyncIterator[ExternalRawNewsItem]:
         """
         Получить новые сырые новости из всех настроенных каналов.
 
@@ -36,26 +51,28 @@ class TelegramRawNewsSource(ExternalRawNewsSource):
         2. Получает только сообщения новее этого ID
         3. Преобразует в ExternalRawNewsItem
         """
+        # Убедиться, что клиент запущен
+        if not self._client_started:
+            await self.client.start()
+            self._client_started = True
+
         for channel in self.channels:
             async for item in self._fetch_channel_items(channel):
                 yield item
 
     async def _fetch_channel_items(self, channel: str) -> AsyncIterator[ExternalRawNewsItem]:
-        """
-        Получить новые сообщения из конкретного канала.
-        """
+        """Получить новые сообщения из конкретного канала."""
         # 1. Получить последний сохранённый message_id для канала
         last_id = await self.repo.get_last_message_id(channel)
 
         # 2. Настроить параметры для iter_messages
         iter_kwargs = {"limit": self.limit_per_channel}
         if last_id is not None:
-            # Telethon вернёт только сообщения с id > min_id
             iter_kwargs["min_id"] = last_id
 
         # 3. Получить новые сообщения
         async for message in self.client.iter_messages(channel, **iter_kwargs):
-            if not message.message:  # Пропустить сообщения без текста
+            if not message.message:
                 continue
 
             # 4. Преобразовать в ExternalRawNewsItem
@@ -63,12 +80,10 @@ class TelegramRawNewsSource(ExternalRawNewsSource):
             yield item
 
     def _message_to_external_item(self, message: Message, channel: str) -> ExternalRawNewsItem:
-        """
-        Преобразовать Telegram Message в ExternalRawNewsItem.
-        """
+        """Преобразовать Telegram Message в ExternalRawNewsItem."""
         return ExternalRawNewsItem(
-            external_id=str(message.id),  # message_id как строка
-            source=channel,  # имя канала как источник
-            text=message.message,  # текст сообщения
-            published_at=message.date.isoformat()  # дата в ISO формате
+            external_id=str(message.id),
+            source=channel,
+            text=message.message,
+            published_at=message.date.isoformat()
         )

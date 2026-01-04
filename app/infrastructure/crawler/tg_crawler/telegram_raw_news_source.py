@@ -21,8 +21,3 @@ async def create_telegram_raw_news_source(session: AsyncSession) -> TelegramRawN
         repo=repo,
         limit_per_channel=50  # можно вынести в конфиг
     )
-
-
-if __name__ == "__main__":
-    from app.infrastructure.database.session import AsyncSession
-    source = create_telegram_raw_news_source(AsyncSession)
