@@ -8,7 +8,7 @@ from shared.config.base_configs.base import ConfigBase
 load_dotenv()
 
 
-class CrawlerConfig(ConfigBase):
+class TgCrawlerConfig(ConfigBase):
     model_config = SettingsConfigDict(env_prefix="CRAWLER_TG_")
 
     api_id: SecretStr
@@ -16,7 +16,8 @@ class CrawlerConfig(ConfigBase):
     session_name: str
 
 
-crawler_config = CrawlerConfig()
+
+tg_crawler_config = TgCrawlerConfig()
 
 # if __name__ == "__main__":
 #     print(crawler_config)
