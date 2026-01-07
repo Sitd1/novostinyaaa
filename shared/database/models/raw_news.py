@@ -45,8 +45,14 @@ class RawNewsORM(Base):
     event_id: Mapped[int | None] = mapped_column(ForeignKey("news_events.id"), index=True, nullable=True)
 
     # ORM связь
-    source: Mapped["SourceORM"] = relationship(back_populates="raw_news")
+    source: Mapped["NewsSourceORM"] = relationship(back_populates="raw_news")
     event: Mapped["NewsEventORM"] = relationship(back_populates="raw_news")
+
+    # связь many-to-many через junction table
+    event_links: Mapped[list["NewsEventRawNewsORM"]] = relationship(
+        back_populates="raw_news",
+        cascade="all, delete-orphan",
+    )
 
     __table_args__ = (
         UniqueConstraint("source_fk", "external_id", name="uq_source_msg"),

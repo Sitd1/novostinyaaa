@@ -1,8 +1,8 @@
-# agents_service/telegram_raw/probe_collect.py
 import asyncio
 from typing import Any
 
 from database.async_connection.session import get_session
+from shared.database.repositories.source import SourceRepository
 from shared.database.repositories.raw_news import RawNewsRepository  # ToDo - создать репозиторий
 from apps.crawler.services.tg_crawler.client import get_telegram_client
 from apps.crawler.services.tg_crawler.tg_channels import TG_CHANNELS
@@ -22,32 +22,41 @@ async def collect_last_messages(limit_per_channel: int = 50) -> None:
     async with client:
         async with get_session() as session:
             repo = RawNewsRepository(session)
+            source_repo = SourceRepository(session)
 
             total_saved = 0
 
             for channel in TG_CHANNELS:
-                print(f"\nЧитаю канал: {channel}") # ToDo переделать под логгер
+                print(f"\nЧитаю канал: {channel}")
 
-                # 1. узнаём максимальный message_id для этого канала в БД
-                last_id = await repo.get_last_message_id(channel)
-                print(f"Последний сохранённый message_id для {channel}: {last_id}")
+                # 1. Получаем или создаем источник
+                source = await source_repo.get_or_create_by_name(
+                    name=channel,
+                    type_="telegram",
+                    title=channel  # Пока используем имя канала как title
+                )
+                print(f"Источник: {source.name} (id={source.id})")
 
-                # 2. собираем только новые сообщения
+                # 2. узнаём максимальный external_id для этого источника в БД
+                last_id = await repo.get_last_external_id(source.id)
+                print(f"Последний сохранённый external_id для {channel}: {last_id}")
+
+                # 3. собираем только новые сообщения
                 new_items: list[dict[str, Any]] = []
 
                 iter_kwargs: dict[str, Any] = {"limit": limit_per_channel}
                 if last_id is not None:
                     # Telethon вернёт только сообщения с id > min_id
-                    iter_kwargs["min_id"] = last_id
+                    iter_kwargs["min_id"] = int(last_id)
 
                 async for msg in client.iter_messages(channel, **iter_kwargs):
                     if not msg.message:
                         continue
 
                     data: dict[str, Any] = {
-                        "channel_username": channel,
-                        "message_id": msg.id,
-                        "date": msg.date,
+                        "source_fk": source.id,  # Используем ID источника вместо channel_username
+                        "external_id": str(msg.id),  # message_id как строка
+                        "published_at": msg.date,  # Корректное название поля
                         "text": msg.message,
                     }
                     new_items.append(data)

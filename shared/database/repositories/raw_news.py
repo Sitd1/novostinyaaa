@@ -3,7 +3,7 @@ from typing import Any, Iterable
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.models.raw_news import RawNewsORM
+from shared.database.models.raw_news import RawNewsORM
 
 
 class RawNewsRepository:
@@ -55,15 +55,15 @@ class RawNewsRepository:
 
         return objects
 
-    async def get_last_message_id(self, channel_username: str) -> int | None:
+    async def get_last_external_id(self, source_id: int) -> str | None:
         """
-        Вернуть максимальный message_id для данного канала, если он есть.
+        Вернуть максимальный external_id для данного источника, если он есть.
         Иначе — None.
         """
         stmt = (
-            select(func.max(RawNewsORM.message_id))
-            .where(RawNewsORM.channel_username == channel_username)
+            select(func.max(RawNewsORM.external_id))
+            .where(RawNewsORM.source_fk == source_id)
         )
         result = await self.session.execute(stmt)
-        last_id: int | None = result.scalar_one_or_none()
+        last_id: str | None = result.scalar_one_or_none()
         return last_id

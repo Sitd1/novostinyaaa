@@ -53,6 +53,18 @@ class NewsEventORM(Base):
         cascade="all, delete-orphan",
     )
 
+    # связь many-to-many через junction table
+    raw_news_links: Mapped[list["NewsEventRawNewsORM"]] = relationship(
+        back_populates="event",
+        cascade="all, delete-orphan",
+    )
+
+    # связь с тегами
+    tags: Mapped[list["NewsEventTagORM"]] = relationship(
+        back_populates="event",
+        cascade="all, delete-orphan",
+    )
+
     def __repr__(self):
         return f"<NewsEventORM id={self.id} title={self.title!r}>"
 
