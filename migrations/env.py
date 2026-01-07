@@ -5,8 +5,17 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from app.config.settings import config as config_settings
-from app.infrastructure.database.models import Base
+from shared.config.base_configs.database_config import database_config
+from shared.database.models import (
+    Base,
+    RawNewsORM,
+    NewsEventORM,
+    NewsEventRawNewsORM,
+    NewsSourceORM,
+    NewsEventTagORM,
+)
+
+
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -14,7 +23,7 @@ config = context.config
 
 config.set_main_option(
     'sqlalchemy.url',
-    config_settings.db.url_psycopg # переопределили
+    database_config.url_psycopg  # используем синхронный драйвер для Alembic (и только для Alembic)
 )
 
 # Interpret the config file for Python logging.
