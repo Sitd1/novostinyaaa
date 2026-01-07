@@ -5,7 +5,7 @@ from shared.config.base_configs.database_config import database_config
 
 
 # URL подключения к БД
-DATABASE_URL = database_config.db.url_asyncpg
+DATABASE_URL = database_config.url_asyncpg
 
 # Создание асинхронного движка
 engine: AsyncEngine = create_async_engine(
