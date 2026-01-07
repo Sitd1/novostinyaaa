@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from contextlib import contextmanager
 from typing import Generator
 
-from database.sync_connection.engine import engine as sync_engine
+from shared.database.sync_connection.engine import engine as sync_engine
 
 # Фабрика сессий
 async_session_maker = sessionmaker(

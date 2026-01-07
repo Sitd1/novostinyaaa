@@ -1,9 +1,9 @@
 import asyncio
 from typing import Any
 
-from database.async_connection.session import get_session
+from shared.database.async_connection.session import get_session
 from shared.database.repositories.source import SourceRepository
-from shared.database.repositories.raw_news import RawNewsRepository  # ToDo - создать репозиторий
+from shared.database.repositories.raw_news import RawNewsRepository
 from apps.crawler.services.tg_crawler.client import get_telegram_client
 from apps.crawler.services.tg_crawler.tg_channels import TG_CHANNELS
 
@@ -58,6 +58,7 @@ async def collect_last_messages(limit_per_channel: int = 50) -> None:
                         "external_id": str(msg.id),  # message_id как строка
                         "published_at": msg.date,  # Корректное название поля
                         "text": msg.message,
+                        "importance": 0,  # Default importance for raw news (will be calculated later)
                     }
                     new_items.append(data)
 

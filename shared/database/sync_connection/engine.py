@@ -1,12 +1,10 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from app.infrastructure.database.models import Base
-from config import Config
+from shared.database.models.base import Base
+from shared.config.base_configs.database_config import database_config
 
-config = Config()
-
-engine = create_engine(config.DATABASE_URL, echo=True)
+engine = create_engine(database_config.url_psycopg, echo=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def init_db():
