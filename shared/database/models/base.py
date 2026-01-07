@@ -28,6 +28,9 @@ class Base:
         """
         return cls.__name__.lower()
 
+    metadata = MetaData()
+
+
     __allow_unmapped__ = False
 
     id: Mapped[int] = mapped_column(Integer, autoincrement=True, primary_key=True)

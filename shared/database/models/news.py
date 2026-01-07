@@ -11,7 +11,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.infrastructure.database.models.base import Base
+from shared.database.models.base import Base
 
 
 class NewsEventORM(Base):

@@ -7,8 +7,8 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.infrastructure.database.models.raw_news import RawNewsORM
-from app.infrastructure.database.models.base import Base
+from shared.database.models.raw_news import RawNewsORM
+from shared.database.models.base import Base
 
 
 
@@ -21,7 +21,7 @@ class NewsEventRawNewsORM(Base):
         ForeignKey("news_events.id", ondelete="CASCADE"), nullable=False
     )
     raw_news_id: Mapped[int] = mapped_column(
-        ForeignKey("tg_raw_news.id", ondelete="CASCADE"), nullable=False
+        ForeignKey("raw_news.id", ondelete="CASCADE"), nullable=False
     )
 
     event: Mapped["NewsEventORM"] = relationship(back_populates="raw_news_links")

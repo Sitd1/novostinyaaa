@@ -1,16 +1,14 @@
-from decimal import Decimal
-
 from datetime import datetime
 
 from sqlalchemy import DateTime, Integer, String, Text, UniqueConstraint, ForeignKey, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.infrastructure.database.models.base import Base
+from shared.database.models.base import Base
 
 
 
 class RawNewsORM(Base):
-    __tablename__ = "tg_raw_news"
+    __tablename__ = "raw_news"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
 
