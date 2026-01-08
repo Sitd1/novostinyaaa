@@ -36,6 +36,11 @@ services:
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
+      - DB_HOST=db
+      - DB_PORT=${DB_PORT}
+      - CRAWLER_TG_API_ID=${CRAWLER_TG_API_ID}
+      - CRAWLER_TG_API_HASH=${CRAWLER_TG_API_HASH}
+      - CRAWLER_TG_SESSION_NAME=${CRAWLER_TG_SESSION_NAME}
     ports:
       - "8000:8000"
     volumes:
@@ -44,6 +49,12 @@ services:
     networks:
       - novostinya_network
     restart: always
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "http://localhost:8000/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   airflow-init:
     image: apache/airflow:2.8.0
