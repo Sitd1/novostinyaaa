@@ -1,30 +1,20 @@
+import os
+import sys
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
-
+from shared.database.models import Base
 from shared.config.base_configs.database_config import database_config
-from shared.database.models import (
-    Base,
-    RawNewsORM,
-    NewsEventORM,
-    NewsEventRawNewsORM,
-    NewsSourceORM,
-    NewsEventTagORM,
-)
 
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from sqlalchemy import pool, create_engine
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-
-config.set_main_option(
-    'sqlalchemy.url',
-    database_config.url_psycopg  # используем синхронный драйвер для Alembic (и только для Alembic)
-)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -36,6 +26,17 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 target_metadata = Base.metadata
+
+
+def get_url():
+    user = os.getenv("DB_USER", "postgres").strip().replace('"', '')
+    password = os.getenv("DB_PASSWORD", "postgres").strip().replace('"', '')
+    host = os.getenv("DB_HOST", "db").strip().replace('"', '')
+    port = os.getenv("DB_PORT", "5432").strip().replace('"', '')
+    db = os.getenv("DB_NAME", "novostinya_db").strip().replace('"', '')
+
+    return f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{db}"
+    # return database_config.url_psycopg
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -55,7 +56,7 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
+    url = get_url()
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -68,21 +69,19 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    """Run migrations in 'online' mode.
+    connect_url = get_url()
+    print(f"CONNECTING TO: {connect_url}") # Добавь этот принт, увидим его в консоли
 
-    In this scenario we need to create an Engine
-    and associate a connection with the context.
-
-    """
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
+    from sqlalchemy import create_engine
+    connectable = create_engine(
+        connect_url,
         poolclass=pool.NullPool,
     )
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata
+            connection=connection,
+            target_metadata=target_metadata
         )
 
         with context.begin_transaction():

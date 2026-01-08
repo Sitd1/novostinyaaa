@@ -49,6 +49,8 @@ services:
     volumes:
       - ./apps:/app/apps
       - ./shared:/app/shared
+      - ./migrations:/app/migrations
+      - ./alembic.ini:/app/alembic.ini
     networks:
       - novostinya_network
     restart: always
