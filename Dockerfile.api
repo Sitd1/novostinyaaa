@@ -1,0 +1,22 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    netcat-openbsd && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+COPY pyproject.toml .
+RUN pip install --no-cache-dir fastapi uvicorn telethon sqlalchemy asyncpg psycopg2-binary alembic pydantic pydantic-settings python-dotenv
+
+# Копируем структуру проекта
+COPY apps ./apps
+COPY shared ./shared
+COPY migrations ./migrations
+COPY alembic.ini ./alembic.ini
+
+# Опционально: если у тебя есть скрипты запуска, о которых мы говорили
+# COPY scripts ./scripts
+
+CMD ["uvicorn", "apps.api.main:app", "--host", "0.0.0.0", "--port", "8000"]

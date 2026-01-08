@@ -19,5 +19,5 @@ class TgCrawlerConfig(ConfigBase):
 
 tg_crawler_config = TgCrawlerConfig()
 
-# if __name__ == "__main__":
-#     print(crawler_config)
+if __name__ == "__main__":
+    print(TgCrawlerConfig())

@@ -26,7 +26,7 @@ class DatabaseConfig(ConfigBase):
     @property
     def url_psycopg(self) -> str:
         """PostgreSQL URL для psycopg"""
-        return f"postgresql+psycopg://{self.user}:{self.password.get_secret_value()}@{self.host}:{self.port}/{self.name}"
+        return f"postgresql+psycopg2://{self.user}:{self.password.get_secret_value()}@{self.host}:{self.port}/{self.name}"
 
 database_config = DatabaseConfig()
 
